@@ -23,7 +23,7 @@ Bắt đầu màn hình xuất hiện từ dưới dòng này
 	
 Server:  Enter the topic you want to subscribe to
 Client: 	abc
-Server: 404 Theme not available. Please enter an existing topic!
+Server: 404 Topic not available. Please enter an existing topic!
 Client:  Temperature
 Server: 	Subscribe to the topic successfully. Would you like to subscribe to more topics?
 Client: 	QUIT 
