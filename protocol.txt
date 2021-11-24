@@ -1,0 +1,32 @@
+//20.11.2021 tdtoan file hướng dẫn
+1.	Publisher
+-	Ban đầu sẽ kết nối broker và truyền cho bên server tên topic mà người dung ko cần nhập, topic sẽ được fix sẵn ở trong code hoặc enum ở ngoài do mỗi client chỉ có 1 topic
+
+Client: HELO Broker
+Server:200 Hello Client
+Client: 0 <tên topic> // 0 là publisher, 1 là subcriber 
+Bắt đầu màn hình xuất hiện từ dưới dòng này
+
+Server:  Enter your data?
+Client: { “User name”: “Hoang123”, “User age”: “18ab”}
+Server: 400 Invalid data. Please enter valid data?
+Client:  { “User name”: “Hoang123”, “User age”: “18ab”}
+Server:  210 OK Enter your data?
+Client: 	QUIT 
+Server: 500 bye
+
+2.	Subcriber
+Client: HELO Broker
+Server:200 Hello Client
+Client: 1 <tên topic> // 0 là publisher, 1 là subcriber 
+Bắt đầu màn hình xuất hiện từ dưới dòng này
+	
+Server:  Enter the topic you want to subscribe to
+Client: 	abc
+Server: 404 Theme not available. Please enter an existing topic!
+Client:  Temperature
+Server: 	Subscribe to the topic successfully. Would you like to subscribe to more topics?
+Client: 	QUIT 
+Server: 500 bye
+
+
