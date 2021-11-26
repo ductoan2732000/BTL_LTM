@@ -4,29 +4,29 @@
 
 Client: HELO Broker
 Server:200 Hello Client
-Client: 0 <tên topic> // 0 là publisher, 1 là subcriber 
-Bắt đầu màn hình xuất hiện từ dưới dòng này
+Client: 0 { “id”: “0000”, “topic”: “/myhome/temperature”} // 0 là publisher, 1 là subcriber, id là tên topic
+// Bắt đầu màn hình xuất hiện từ dưới dòng này
 
-Server:  Enter your data?
+Server: Enter your data?
 Client: { “User name”: “Hoang123”, “User age”: “18ab”}
 Server: 400 Invalid data. Please enter valid data?
-Client:  { “User name”: “Hoang123”, “User age”: “18ab”}
-Server:  210 OK Enter your data?
-Client: 	QUIT 
+Client: { “User name”: “Hoang123”, “User age”: “18ab”}
+Server: 210 OK Enter your data?
+Client: QUIT 
 Server: 500 bye
 
 2.	Subcriber
 Client: HELO Broker
 Server:200 Hello Client
-Client: 1 <tên topic> // 0 là publisher, 1 là subcriber 
-Bắt đầu màn hình xuất hiện từ dưới dòng này
-	
-Server:  Enter the topic you want to subscribe to
-Client: 	abc
+Client: 1 { “id”: “0001”, “name”: “laptopName” } // 0 là publisher, 1 là subcriber, id là client
+// Bắt đầu màn hình xuất hiện từ dưới dòng này
+
+Server: Hello laptopName, enter the topic you want to subscribe to? (! to do not subcribe)/No new data yet.
+Client: abc
 Server: 404 Topic not available. Please enter an existing topic!
-Client:  Temperature
-Server: 	Subscribe to the topic successfully. Would you like to subscribe to more topics?
-Client: 	QUIT 
+Client: Temperature
+Server: Subscribe to the topic successfully. No new data yet
+Client: QUIT
 Server: 500 bye
 
 
