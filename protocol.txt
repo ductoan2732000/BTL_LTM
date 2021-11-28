@@ -59,7 +59,7 @@ Client : QUIT
 Broker : 500 byte
 
 //tdtoan: cấm xóa
-Personal access tokens: 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
+Personal access tokens: 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
 
 
 
