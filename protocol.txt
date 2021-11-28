@@ -4,7 +4,7 @@
 
 Client: HELO Broker
 Server:200 Hello Client
-Client: 0 { “id”: “0000”, “topic”: “/myhome/temperature”} // 0 là publisher, 1 là subcriber, id là tên topic
+Client: 0 {“id”: “0000”, “topic”: “/myhome/temperature”} // 0 là publisher, 1 là subcriber, id là tên topic
 // Bắt đầu màn hình xuất hiện từ dưới dòng này
 
 Server: Enter your data?
