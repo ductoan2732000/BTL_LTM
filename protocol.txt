@@ -21,12 +21,12 @@ Server:200 Hello Client
 Client: 1 { “id”: “0001”, “name”: “laptopName” } // 0 là publisher, 1 là subcriber, id là client
 // Bắt đầu màn hình xuất hiện từ dưới dòng này
 
-Server: Hello laptopName, enter the topic you want to subscribe to? (0 to do not subcribe)/No new data yet.
+Server: 200 Hello laptopName, enter the topic you want to subscribe to? (0 to do not subcribe)/No new data yet.
 Topic  1. Temperature 2. humidity 3. hardware
 Client: 10
 Server: 404 Topic not available. Please enter an existing topic!
 Client: 1
-Server: Subscribe to the topic successfully. No new data yet
+Server: 200 Subscribe to the topic successfully. No new data yet
 Client: QUIT
 Server: 500 bye
 
@@ -36,10 +36,10 @@ Server: 500 bye
 Client : HELLO Server
 Broker : 200 Hello
 Client : 1 { “id”: “0001”, “name”: “laptopName” } 
-Broker : HELLO laptopName. 
+Broker : 200 HELLO laptopName.
 Topic  1. Temperature 2. humidity 3. 
 Client : 1
-Broker : Subcriber Success.
+Broker : 200 Subcriber Success.
 Broker : {name : "sensor1", Temperature : "30 độ c", "Time" : "10:10:60 18/01/2021"}
 Client : QUIT
 Broker : 500 byte
