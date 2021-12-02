@@ -54,8 +54,6 @@ Broker : 500 byte
 410
 500
 
-//tdtoan: cấm xóa
-Personal access tokens: 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
 
 
 
