@@ -36,7 +36,7 @@ Server: 500 bye
 Client : HELLO Server
 Broker : 200 Hello
 Client : 1 { “id”: “0001”, “name”: “laptopName” } 
-Broker : 200 HELLO laptopName.
+Broker : 210 HELLO laptopName.
 Topic  1. Temperature 2. humidity 3. 
 Client : 1
 Broker : 200 Subcriber Success.
@@ -49,10 +49,10 @@ Broker : 500 byte
 
 Client : HELLO Server
 Broker : 200 Hello
-Client :  0 { “id”: “0001”, “topic”: “Temperature” , name : "sensor1"} 
-Broker : 200 HELLO Publisher. 
+Client :  2 { “id”: “0002”, “topic”: “Temperature” , name : "sensor1"} 
+Broker : 210 HELLO Publisher. 
 Client : {  “Data”: “18 độ C”, "Time" : "10:10:60 18/01/2021"}
-Broker : 200 Success . Data save in location . "/location/Temperary/sensor1"
+Broker : 220 Success . Data save in location . "/location/Temperary/sensor1"
 Client : {  “abc”: “18 độ C”}
 Broker : 400 Error Request.
 Client : QUIT
