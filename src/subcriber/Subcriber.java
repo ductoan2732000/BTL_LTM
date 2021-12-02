@@ -35,8 +35,8 @@ public class Subcriber {
 
                 // 1 helo
                 string_to_server = "HELLO Server";
-                output.writeBytes(string_to_server + '\n');
-                string_from_server = in.readLine();
+                output.writeUTF(string_to_server);
+                string_from_server = in.readUTF();
                 if(!string_from_server.equals("200 Hello Client")){
                     System.exit(-1);
                 }
@@ -45,13 +45,14 @@ public class Subcriber {
 
                 // 2 gui id vs name
                 JSONObject jsonIden = new JSONObject();
-                jsonIden.put("id", id);
+                jsonIden.put("id", "0001");
                 jsonIden.put("name", name);
+                jsonIden.put("topic", "tdtoan");
                 string_to_server = "1 " + jsonIden.toJSONString();
-                output.writeBytes(string_to_server + '\n');
-                string_from_server = in.readLine();
+                output.writeUTF(string_to_server);
+                string_from_server = in.readUTF();
 
-                if(!(string_from_server.contains("200") && string_from_server.contains(name)) ){
+                if(!(string_from_server.contains("210") && string_from_server.contains(name)) ){
                     System.exit(-1);
                 }
                 System.out.println("FROM SERVER: " + string_from_server);
@@ -68,16 +69,16 @@ public class Subcriber {
 
 
                 if(string_to_server.equals("QUIT") ){
-                    output.writeBytes(string_to_server + '\n');
-                    string_from_server = in.readLine();
+                    output.writeUTF(string_to_server );
+                    string_from_server = in.readUTF();
                     System.out.println("FROM SERVER: " + string_from_server);
                     clientSocket.close();
                     break;
                 }
                 else{
-                    output.writeBytes(string_to_server + '\n');
-                    string_from_server = in.readLine();
-                    if(string_from_server.contains("200")){
+                    output.writeUTF(string_to_server );
+                    string_from_server = in.readUTF();
+                    if(string_from_server.contains("210")){
                         System.out.println("FROM SERVER: " + string_from_server);
                         send = true;
                     }
@@ -89,7 +90,7 @@ public class Subcriber {
                 //  1.xử lý phần đang nghe từ server nhưng lại nhập input và dừng ct
                 //  2.nếu bên public die thì dùng ct
                 //  3. nếu server die thì dừng ct
-                string_from_server = in.readLine();
+                string_from_server = in.readUTF();
                 System.out.println("FROM SERVER: " + string_from_server);
             }
 
