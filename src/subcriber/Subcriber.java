@@ -11,7 +11,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 public class Subcriber {
-    public static Integer main(String argv[]) throws Exception
+    public static void main(String argv[]) throws Exception
     {
         Boolean helo = false;
         Boolean send = false;
@@ -37,7 +37,7 @@ public class Subcriber {
                 output.writeBytes(string_to_server + '\n');
                 string_from_server = in.readLine();
                 if(!string_from_server.equals("200 Hello Client")){
-                    return 0;
+                    System.exit(-1);
                 }
                 System.out.println("FROM SERVER: " + string_from_server);
 
@@ -51,7 +51,7 @@ public class Subcriber {
                 string_from_server = in.readLine();
 
                 if(!(string_from_server.contains("200") && string_from_server.contains(name)) ){
-                    return 0;
+                    System.exit(-1);
                 }
                 System.out.println("FROM SERVER: " + string_from_server);
             }
@@ -96,12 +96,12 @@ public class Subcriber {
         }
         catch (Exception e){
             System.out.println(e);
-            return 0;
+            System.exit(-1);
         }
 
 
 
-        return 1;
+        System.exit(-1);
     }
 }
 
