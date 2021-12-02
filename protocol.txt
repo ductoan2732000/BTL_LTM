@@ -11,7 +11,7 @@ Client: 1 { “id”: “0001”, “name”: “laptopName” } // 2 là publis
 Server: 200 Hello laptopName, enter the topic you want to subscribe to? (0 to do not subcribe)/No new data yet.
 Topic  1. Temperature 2. humidity 3. hardware
 Client: 10
-Server: 404 Topic not available. Please enter an existing topic!
+Server: 410 Topic not available. Please enter an existing topic!
 Client: 1
 Server: 230 Subscribe to the topic successfully. No new data yet
 Client: QUIT
