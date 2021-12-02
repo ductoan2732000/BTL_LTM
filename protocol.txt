@@ -1,19 +1,6 @@
-//20.11.2021 tdtoan file hướng dẫn
+
 1.	Publisher
 -	Ban đầu sẽ kết nối broker và truyền cho bên server tên topic mà người dung ko cần nhập, topic sẽ được fix sẵn ở trong code hoặc enum ở ngoài do mỗi client chỉ có 1 topic
-
-Client: HELO Server
-Server: 200 Hello
-Client: 0 {“id”: “0000”, “topic”: “/myhome/temperature”} // 2 là publisher, 1 là subcriber, id là tên topic
-// Bắt đầu màn hình xuất hiện từ dưới dòng này
-
-Server: Enter your data?
-Client: { “User name”: “Hoang123”, “User age”: “18ab”}
-Server: 400 Invalid data. Please enter valid data?
-Client:  {name : "sensor1", Temperature : "30 độ c", "Time" : "10:10:60 18/01/2021"}
-Server: 210 OK Enter your data?
-Client: QUIT 
-Server: 500 bye
 
 2.	Subcriber
 Client: HELO Server
@@ -57,6 +44,15 @@ Client : {  “abc”: “18 độ C”}
 Broker : 400 Invalid data.
 Client : QUIT
 Broker : 500 byte
+
+
+200 Hello
+210
+220
+230
+400
+410
+500
 
 //tdtoan: cấm xóa
 Personal access tokens: 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
