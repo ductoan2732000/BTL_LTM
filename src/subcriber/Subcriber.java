@@ -23,8 +23,9 @@ public class Subcriber {
         try{
             // khởi tạo socket đến server
             Socket clientSocket = new Socket(ConfigClient.host, ConfigClient.port);
+
             DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            DataInputStream in = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
 
             if(helo == false){
                 // kết nối xong thì chào hỏi ngay
