@@ -178,14 +178,17 @@ class ClientHandler extends Thread
                     WriteFile(instance, received);
                     toreturn = "200 Success . Data save in location . \"/location/Temperary/sensor1\"";
                     dos.writeUTF(toreturn);
+                    // send data to subscriber
+
                 }
                 else if(isSubscriber){
                     // xử lý dữ liệu subsriber
                     //Broker : 200 Subcriber Success.
                     //Broker : {name : "sensor1", Temperature : "30 độ c", "Time" : "10:10:60 18/01/2021"}
+                    // nhập topic : tìm kiếm location, lưu log
                     switch (received){
                         default :
-                            toreturn = "200 Subsriber Success";
+                            toreturn = "210 Subscriber Success";
                             dos.writeUTF(toreturn);
                             // tìm trong thư  mục có tồn tại  topic không pending
                             // fix data
@@ -216,7 +219,7 @@ class ClientHandler extends Thread
                             if(AuthenPublisher(data, instance)){
                                 isPublisher = true;
                                 isSubscriber = false;
-                                toreturn = "200 Hello " + instance.name;
+                                toreturn = "210 Hello " + instance.name;
                             }
                             break;
                         case  "1":
@@ -225,7 +228,7 @@ class ClientHandler extends Thread
                                 isPublisher = false;
                                 isSubscriber = true;
                                 // tạm fix dữ liệu
-                                toreturn = "200 Hello " + instance.name + "\n Topic : 1. Temperature 2. humidity 3.....";
+                                toreturn = "210 Hello " + instance.name + "\n Topic : 1. Temperature 2. humidity 3.....";
                             }
                             break;
                         default:
