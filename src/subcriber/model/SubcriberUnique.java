@@ -16,6 +16,10 @@ public class SubcriberUnique {
         this.id = this.lastId + 1;
         this.name = this.RandomString();
     }
+    public SubcriberUnique(Integer id){
+        this.id = id;
+        this.name = this.RandomString();
+    }
     public Integer getId(){
         return this.id;
     }
