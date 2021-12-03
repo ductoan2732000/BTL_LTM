@@ -6,6 +6,7 @@ package subcriber;
 import org.json.simple.JSONObject;
 import subcriber.model.SubcriberUnique;
 import util.ConfigCommon;
+import util.ConfigMessage;
 
 import java.io.*;
 import java.net.Socket;
@@ -13,6 +14,7 @@ import java.util.Scanner;
 public class Subcriber {
     public static void main(String argv[]) throws Exception
     {
+        Integer subscriber = 1;
         Boolean helo = false;
         Boolean send = false;
         Boolean listen = false;
@@ -29,35 +31,37 @@ public class Subcriber {
 
             if(helo == false){
                 // kết nối xong thì chào hỏi ngay
-                SubcriberUnique idenSub = new SubcriberUnique(1001, "tranductoan");
+                SubcriberUnique idenSub = new SubcriberUnique(1001, "tranductoan", "temperature");
                 Integer id = idenSub.getId();
                 String name = idenSub.getName();
 
                 // 1 helo
-                string_to_server = "HELLO Server";
+                string_to_server = ConfigMessage.helloServer;
                 output.writeUTF(string_to_server);
-                System.out.println("TO SERVER: " + string_to_server);
+                System.out.println(ConfigMessage.msgCacheClient2 + string_to_server);
                 string_from_server = in.readUTF();
-                if(!string_from_server.equals("200 Hello Client")){
+                if(!string_from_server.contains(ConfigCommon.requestSucceeded.toString())){
+                    System.out.println(ConfigMessage.requestTimeout);
                     System.exit(-1);
                 }
-                System.out.println("FROM SERVER: " + string_from_server);
+                System.out.println(ConfigMessage.msgCacheClient1+ string_from_server);
 
 
                 // 2 gui id vs name
-                JSONObject jsonIden = new JSONObject();
-                jsonIden.put("id", id.toString());
-                jsonIden.put("name", name);
-                jsonIden.put("topic", "temperature");
-                string_to_server = "1 " + jsonIden.toJSONString();
-                output.writeUTF(string_to_server);
-                System.out.println("TO SERVER: " + string_to_server);
-                string_from_server = in.readUTF();
-
-                if(!(string_from_server.contains("210") && string_from_server.contains(name)) ){
+                string_to_server = idenSub.getJsonClient();
+                if(!string_to_server.equals("")){
+                    output.writeUTF(string_to_server);
+                    System.out.println(ConfigMessage.msgCacheClient2 + string_to_server);
+                    string_from_server = in.readUTF();
+                    if(!string_from_server.contains(ConfigCommon.helloName.toString()) ){
+                        System.out.println(ConfigMessage.requestTimeout);
+                        System.exit(-1);
+                    }
+                    System.out.println(ConfigMessage.msgCacheClient1 + string_from_server);
+                }
+                else{
                     System.exit(-1);
                 }
-                System.out.println("FROM SERVER: " + string_from_server);
             }
             helo = true; // đã chào hỏi xong
 
@@ -66,22 +70,22 @@ public class Subcriber {
             while (helo == true && send == false){
                 Scanner ip= new Scanner(System.in);
 
-                System.out.print("Input from client: ");
+                System.out.print(ConfigMessage.msgCacheClient2);
                 string_to_server = ip.nextLine();
 
 
-                if(string_to_server.equals("QUIT") ){
+                if(string_to_server.equals(ConfigMessage.quit) ){
                     output.writeUTF(string_to_server );
                     string_from_server = in.readUTF();
-                    System.out.println("FROM SERVER: " + string_from_server);
+                    System.out.println(ConfigMessage.msgCacheClient1 + string_from_server);
                     clientSocket.close();
                     break;
                 }
                 else{
                     output.writeUTF(string_to_server );
                     string_from_server = in.readUTF();
-                    if(string_from_server.contains("210")){
-                        System.out.println("FROM SERVER: " + string_from_server);
+                    if(string_from_server.contains(ConfigCommon.successTopicData.toString())){
+                        System.out.println(ConfigMessage.msgCacheClient1 + string_from_server);
                         send = true;
                     }
                 }
@@ -93,7 +97,7 @@ public class Subcriber {
                 //  2.nếu bên public die thì dùng ct
                 //  3. nếu server die thì dừng ct
                 string_from_server = in.readUTF();
-                System.out.println("FROM SERVER: " + string_from_server);
+                System.out.println(ConfigMessage.msgCacheClient1 + string_from_server);
             }
 
 
