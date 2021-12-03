@@ -36,6 +36,7 @@ public class Subcriber {
                 // 1 helo
                 string_to_server = "HELLO Server";
                 output.writeUTF(string_to_server);
+                System.out.println("TO SERVER: " + string_to_server);
                 string_from_server = in.readUTF();
                 if(!string_from_server.equals("200 Hello Client")){
                     System.exit(-1);
@@ -45,11 +46,12 @@ public class Subcriber {
 
                 // 2 gui id vs name
                 JSONObject jsonIden = new JSONObject();
-                jsonIden.put("id", "0001");
+                jsonIden.put("id", id.toString());
                 jsonIden.put("name", name);
-                jsonIden.put("topic", "tdtoan");
+                jsonIden.put("topic", "temperature");
                 string_to_server = "1 " + jsonIden.toJSONString();
                 output.writeUTF(string_to_server);
+                System.out.println("TO SERVER: " + string_to_server);
                 string_from_server = in.readUTF();
 
                 if(!(string_from_server.contains("210") && string_from_server.contains(name)) ){
