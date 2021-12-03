@@ -3,7 +3,7 @@ package util;
 public class ConfigMessage {
     public static final String helloServer = "Hello Server";
     public static final String helloClient = ConfigCommon.requestSucceeded + " Hello Client";
-    public static final String helloName = ConfigCommon.helloName+ " Hello";
+    public static final String helloName = ConfigCommon.helloName+ " Hello ";
     public static final String requestTimeout = ConfigCommon.requestTimeout+ " Request Timeout";
     public static final String quit = "Quit";
     public static final String bye = ConfigCommon.bye + " Bye";

@@ -3,8 +3,8 @@
 -	Ban đầu sẽ kết nối broker và truyền cho bên server tên topic mà người dung ko cần nhập, topic sẽ được fix sẵn ở trong code hoặc enum ở ngoài do mỗi client chỉ có 1 topic
 
 2.	Subcriber
-Client: HELO Server
-Server: 200 Hello
+Client: Hello Server
+Server: 200 Hello Client
 Client: 1 { “id”: “0001”, “name”: “laptopName” } // 2 là publisher, 1 là subcriber, id là client
 // Bắt đầu màn hình xuất hiện từ dưới dòng này
 

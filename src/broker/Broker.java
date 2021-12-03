@@ -3,18 +3,19 @@ package broker;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import util.ConfigCommon;
+import util.ConfigMessage;
 
 import java.io.*;
 import java.text.*;
-import java.util.*;
 import java.net.*;
 
-
-enum  Indentified {
-    Subscirber("1"),
-    Publisher("0");
+// ???: Chưa hiểu
+enum  Identified {
+    Subscriber(ConfigCommon.roleSub),
+    Publisher(ConfigCommon.rolePub);
     private final String value;
-    private Indentified(String value) {
+    private Identified(String value) {
         this.value = value;
     }
     public String getValue() {
@@ -22,22 +23,22 @@ enum  Indentified {
     }
     public String toString(){
         switch(this){
-            case Subscirber:
-                return "1";
+            case Subscriber:
+                return ConfigCommon.roleSub;
             case Publisher :
-                return "0";
+                return ConfigCommon.rolePub;
         }
         return null;
     }
 }
 
+// ???: Chưa hiểu
 class Instance{
     public String id = null;
-    public  String topic = null;
-    public  String name = null;
+    public String topic = null;
+    public String name = null;
 
     public  static Instance CreateInstance(String data) throws ParseException {
-
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(data);
         /// tạm fix tĩnh value
@@ -56,8 +57,8 @@ class Instance{
 public class Broker
 {
     private ServerSocket serverSocket= null;
-    private DataInputStream dis      = null;
-    private DataOutputStream dos     = null;
+    private DataInputStream dataInputStream = null;
+    private DataOutputStream dataOutputStream = null;
     private Socket socket = null;
 
     public Broker(int port) {
@@ -66,16 +67,15 @@ public class Broker
             System.out.println("Server start");
             System.out.println("Waiting a connection ...");
             while(true) {
-
                 socket = serverSocket.accept();
                 System.out.println("A new client is connected : " + socket);
                 System.out.println("Assigning new thread for this client");
 
-                dis = new DataInputStream(socket.getInputStream());
-                dos = new DataOutputStream(socket.getOutputStream());
+                dataInputStream = new DataInputStream(socket.getInputStream());
+                dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
                 // create a new thread object
-                Thread t = new ClientHandler(socket, dis, dos);
+                Thread t = new ClientHandler(socket, dataInputStream, dataOutputStream);
 
                 // Invoking the start() method
                 t.start();
@@ -85,13 +85,12 @@ public class Broker
         {
             System.out.println(ioe);
         }
-
     }
 
     public static void main(String[] args) throws IOException
     {
         // server is listening on port 5056
-        Broker server = new Broker(5056);
+        Broker server = new Broker(ConfigCommon.port);
     }
 }
 
@@ -100,44 +99,42 @@ class ClientHandler extends Thread
 {
     DateFormat fordate        = new SimpleDateFormat("yyyy/MM/dd");
     DateFormat fortime        = new SimpleDateFormat("hh:mm:ss");
-    final DataInputStream dis;
-    final DataOutputStream dos;
+    final DataInputStream dataInputStream;
+    final DataOutputStream dataOutputStream;
     final Socket socket;
-
-
+    
     // Constructor
-    public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos)
+    public ClientHandler(Socket socket, DataInputStream dataInputStream, DataOutputStream dataOutputStream)
     {
-        this.socket = s;
-        this.dis = dis;
-        this.dos = dos;
+        this.socket = socket;
+        this.dataInputStream = dataInputStream;
+        this.dataOutputStream = dataOutputStream;
     }
     /// xác thực publish, subscriber
-    public String processData(String received){
-        String toreturn = null;
-        switch (received) {
-            case "HELLO Server" :
-                toreturn = "200 Hello Client";
+    public String processData(String msgFromClient){
+        String msgToClient = null;
+        switch (msgFromClient) {
+            case ConfigMessage.helloServer:
+                msgToClient = ConfigMessage.helloClient;
                 break;
 
-            case "QUIT" :
-                toreturn = "500 byte";
+            case ConfigMessage.quit:
+                msgToClient = ConfigMessage.bye;
                 break;
-
             default:
-                toreturn = "404 Invalid input";
+                msgToClient = ConfigMessage.msgInvalidDataPub ;
                 break;
         }
-        return toreturn;
+        return msgToClient;
     }
 
+    // ???: Chưa hiểu
     public String processPublisher(String data) throws ParseException {
         // xác thực
 
+    // ???: Chưa hiểu
         Instance instance = Instance.CreateInstance(data);
         System.out.println(instance.GetInfoInstance(instance));
-
-
         return null;
     }
 
@@ -161,84 +158,90 @@ class ClientHandler extends Thread
     @Override
     public void run()
     {
-        String received      = "";
-        String toreturn      = "";
+        String msgFromClient = "";
+        String msgToClient = "";
         boolean isSubscriber = false;
         boolean isPublisher = false;
         Instance instance = null;
-        while (!received.equals("bye"))
+        while (!msgFromClient.equals(ConfigMessage.quit))
         {
             try {
                 // receive the answer from client
-                received = dis.readUTF();
+                msgFromClient = dataInputStream.readUTF();
 
                 if(isPublisher){
+                    // ???: Chưa hiểu
                     //nhận dữ liệu
                     // đẩy vào file
-                    WriteFile(instance, received);
-                    toreturn = "200 Success . Data save in location . \"/location/Temperary/sensor1\"";
-                    dos.writeUTF(toreturn);
-                    // send data to subscriber
+                    WriteFile(instance, msgFromClient);
 
+                    // ???: Chỗ location thì sẽ như thế nào
+//                    msgToClient = "200 Success. Data save in location . \"/location/Temperary/sensor1\"";
+
+                    msgToClient = ConfigMessage.msgDataSucceededPub;
+                    dataOutputStream.writeUTF(msgToClient);
+                    // send data to subscriber
                 }
                 else if(isSubscriber){
+
+                    // ???: Có sự thay đổi ở đây
                     // xử lý dữ liệu subsriber
                     //Broker : 200 Subcriber Success.
                     //Broker : {name : "sensor1", Temperature : "30 độ c", "Time" : "10:10:60 18/01/2021"}
                     // nhập topic : tìm kiếm location, lưu log
-                    switch (received){
+                    switch (msgFromClient){
                         default :
-                            toreturn = "210 Subscriber Success";
-                            dos.writeUTF(toreturn);
+                            // ???: Chưa hiểu
+                            msgToClient = "210 Subscriber Success";
+                            dataOutputStream.writeUTF(msgToClient);
                             // tìm trong thư  mục có tồn tại  topic không pending
                             // fix data
                             String path = "pnthuan/Location/thuan/thuan";
-                            received = ReadFile(path);
-                            dos.writeUTF(received);
+                            msgFromClient = ReadFile(path);
+                            dataOutputStream.writeUTF(msgFromClient);
                             break;
                     }
                 }
                 else {
-                    String i = null;
+                    String roleClient = null;
                     String data = null;
                     try {
-                         i = received.substring(0, 1);
-                         data = received.substring(2);
+                         roleClient = msgFromClient.substring(0, 1);
+                         data = msgFromClient.substring(2);
                          instance = Instance.CreateInstance(data);
-
                     }
                     catch (Exception e){
                         instance = null;
-                        i = "-1";
+                        roleClient = "-1";
                         System.out.println("Lỗi parse data từ client" + e);
                     }
-                    System.out.println("Giá trị i : " + i);
+                    System.out.println("Giá trị i : " + roleClient);
 
-                    switch (i){
-                        case  "2":
+                    switch (roleClient){
+                        case ConfigCommon.rolePub:
                             if(AuthenPublisher(data, instance)){
                                 isPublisher = true;
                                 isSubscriber = false;
-                                toreturn = "210 Hello " + instance.name;
+                                msgToClient = ConfigMessage.helloName + instance.name;
                             }
                             break;
-                        case  "1":
+                        case ConfigCommon.roleSub:
                             if(AuthenSubscriber(data, instance))
                             {
                                 isPublisher = false;
                                 isSubscriber = true;
                                 // tạm fix dữ liệu
-                                toreturn = "210 Hello " + instance.name + "\n Topic : 1. Temperature 2. humidity 3.....";
+                                msgToClient = ConfigMessage.helloName + instance.name + "\n Topic : 1. Temperature 2. humidity 3.....";
                             }
                             break;
                         default:
-                            toreturn = processData(received);
+                            msgToClient = processData(msgFromClient);
                             break;
                         }
 
-                    System.out.println("Message from Client (port: " + this.socket.getPort()+ ") : " + received);
-                    dos.writeUTF(toreturn);
-                    System.out.println("Message to Client (port: "+this.socket.getPort()+") : "+toreturn);
+                    System.out.println("Message from Client (port: " + this.socket.getPort()+ ") : " + msgFromClient);
+                    dataOutputStream.writeUTF(msgToClient);
+                    System.out.println("Message to Client (port: "+this.socket.getPort()+") : "+msgToClient);
                 }
             } catch (IOException | ParseException e) {
                 e.printStackTrace();
@@ -253,8 +256,8 @@ class ClientHandler extends Thread
             System.out.println("Connection closed");
             System.out.println("Waiting a connection ...");
             this.socket.close();
-            this.dis.close();
-            this.dos.close();
+            this.dataInputStream.close();
+            this.dataOutputStream.close();
 
         }catch(IOException e){
             e.printStackTrace();
@@ -265,12 +268,12 @@ class ClientHandler extends Thread
 
     }
     public void WriteFile(Instance  instance, String content) throws IOException {
+        // ???: Chưa hiểu
         String directoryName = "pnthuan/Location/" + instance.topic  + "/";
         String fileName = instance.name;
         File directory = new File(directoryName);
-        if (! directory.exists()){
+        if (!directory.exists()){
             directory.mkdir();
-
         }
         File file = new File(directoryName + "/" + fileName);
         if(!file.exists()){
@@ -285,24 +288,23 @@ class ClientHandler extends Thread
         }
         catch (IOException e){
             e.printStackTrace();
-
         }
     }
     public String  ReadFile(String path) throws FileNotFoundException {
         File infile = new File(path);
         FileInputStream fis = new FileInputStream(infile);
         BufferedInputStream bis = new BufferedInputStream(fis);
-        try (FileReader fin = new FileReader(path)) {
-            int data = fin.read();
+        try (FileReader fileReader = new FileReader(path)) {
+            int data = fileReader.read();
             StringBuilder line = new StringBuilder();
             while (data != -1) {
                 if (((char)data == '\n') || ((char)data == '\r')) {
                     line.delete(0, line.length());
-                    data = fin.read();
+                    data = fileReader.read();
                     continue;
                 }
                 line.append((char)data);
-                data = fin.read();
+                data = fileReader.read();
             }
             return  line.toString();
         } catch (IOException e) {
