@@ -1,11 +1,12 @@
 package publisher;
 
-import java.net.*;
+import org.json.simple.JSONObject;
+
 import java.io.*;
+import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
-import org.json.simple.JSONObject;
 public class Publisher1
 {
     // initialize socket and input output streams
@@ -13,9 +14,9 @@ public class Publisher1
     private static DataInputStream  input   = null;
     private static DataOutputStream out     = null;
     boolean isHello = false, isSendId = false;
-    private static final int role = 0, maxTemp = 50, minTemp = 20; //0: publisher, 1: subcriber
-    private static final int id = 0; // id
-    private static final String topic = "/myhome/template";
+    private static final int role = 2, maxTemp = 50, minTemp = 20; //0: publisher, 1: subcriber
+    private static final  String id = "0002"; // id
+    private static final String topic = "template";
     private static String line = "";
     private static String recvBuf = "";
     // constructor to put ip address and port
@@ -54,7 +55,7 @@ public class Publisher1
 
                 // Neu chua chao hoi
                 if (!isHello){
-                    line = "Hello Broker";
+                    line = "HELLO Server";
                     isHello = true;
                 }
 
@@ -63,6 +64,7 @@ public class Publisher1
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("id", id);
                         jsonObject.put("topic", topic);
+                        jsonObject.put("name", "sensor1");
                         line = role + " " + jsonObject;
                         isSendId = true;
                 }
@@ -152,6 +154,6 @@ public class Publisher1
 
     public static void main(String args[])
     {
-        Publisher1 client = new Publisher1("127.0.0.1", 5000);
+        Publisher1 client = new Publisher1("127.0.0.1", 5056);
     }
 }

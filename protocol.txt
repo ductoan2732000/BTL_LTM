@@ -1,45 +1,32 @@
-//20.11.2021 tdtoan file hướng dẫn
+
 1.	Publisher
 -	Ban đầu sẽ kết nối broker và truyền cho bên server tên topic mà người dung ko cần nhập, topic sẽ được fix sẵn ở trong code hoặc enum ở ngoài do mỗi client chỉ có 1 topic
 
-Client: HELO Broker
-Server:200 Hello Client
-Client: 0 {“id”: “0000”, “topic”: “/myhome/temperature”} // 0 là publisher, 1 là subcriber, id là tên topic
-// Bắt đầu màn hình xuất hiện từ dưới dòng này
-
-Server: Enter your data?
-Client: { “User name”: “Hoang123”, “User age”: “18ab”}
-Server: 400 Invalid data. Please enter valid data?
-Client: { “User name”: “Hoang123”, “User age”: “18ab”}
-Server: 210 OK Enter your data?
-Client: QUIT 
-Server: 500 bye
-
 2.	Subcriber
-Client: HELO Broker
-Server:200 Hello Client
-Client: 1 { “id”: “0001”, “name”: “laptopName” } // 0 là publisher, 1 là subcriber, id là client
+Client: HELO Server
+Server: 200 Hello
+Client: 1 { “id”: “0001”, “name”: “laptopName” } // 2 là publisher, 1 là subcriber, id là client
 // Bắt đầu màn hình xuất hiện từ dưới dòng này
 
 Server: 200 Hello laptopName, enter the topic you want to subscribe to? (0 to do not subcribe)/No new data yet.
 Topic  1. Temperature 2. humidity 3. hardware
 Client: 10
-Server: 404 Topic not available. Please enter an existing topic!
+Server: 410 Topic not available. Please enter an existing topic!
 Client: 1
-Server: 200 Subscribe to the topic successfully. No new data yet
+Server: 230 Subscribe to the topic successfully. No new data yet
 Client: QUIT
 Server: 500 bye
 
 
 3. Broker
 ------------------------ Subcriber ----------------------
-Client : HELLO Server
+Client : HELO Server
 Broker : 200 Hello
 Client : 1 { “id”: “0001”, “name”: “laptopName” } 
-Broker : 200 HELLO laptopName.
+Broker : 210 HELLO laptopName.
 Topic  1. Temperature 2. humidity 3. 
 Client : 1
-Broker : 200 Subcriber Success.
+Broker : 240 Subcriber Success.
 Broker : {name : "sensor1", Temperature : "30 độ c", "Time" : "10:10:60 18/01/2021"}
 Client : QUIT
 Broker : 500 byte
@@ -47,19 +34,30 @@ Broker : 500 byte
 ----------------------- publisher ---------------------
 
 
-Client : HELLO Server
+Client : HELO Server
 Broker : 200 Hello
-Client :  0 { “id”: “0001”, “topic”: “Temperature” , name : "sensor1"} 
-Broker : 200 HELLO Publisher. 
+Client :  2 { “id”: “0002”, “topic”: “Temperature” , name : "sensor1"} 
+Broker : 210 HELLO Publisher. 
 Client : {  “Data”: “18 độ C”, "Time" : "10:10:60 18/01/2021"}
-Broker : 200 Success . Data save in location . "/location/Temperary/sensor1"
+Broker : 220 Success . Data save in location . "/location/Temperary/sensor1"
 Client : {  “abc”: “18 độ C”}
-Broker : 400 Error Request.
+Broker : 400 Invalid data.
 Client : QUIT
 Broker : 500 byte
 
-//tdtoan: cấm xóa
-Personal access tokens: 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
+
+200 Hello
+210
+220
+230
+400
+410
+500
+
+
+
+
+
 
 
 
