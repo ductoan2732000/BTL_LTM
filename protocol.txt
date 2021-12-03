@@ -17,25 +17,29 @@ Server: 230 Subscribe to the topic successfully. No new data yet
 Client: QUIT
 Server: 500 bye
 
-
 3. Broker
------------------------- Subcriber ----------------------
-Client : HELO Server
-Broker : 200 Hello
+------------------------ Subscriber ----------------------
+Client : Hello Server
+Broker : 200 Hello Client
+Client : Hello Server
+Broker : 504 Request Timeout
 Client : 1 { “id”: “0001”, “name”: “laptopName” } 
 Broker : 210 HELLO laptopName.
-Topic  1. Temperature 2. humidity 3. 
+Topic  1. Temperature 2. humidity 3.Hardware
+Client : 10
+Broker : 410 Topic not available. Please enter an existing topic!
 Client : 1
-Broker : 240 Subcriber Success.
+Broker : 230 Subscribe to the topic successfully. No new data yet
 Broker : {name : "sensor1", Temperature : "30 độ c", "Time" : "10:10:60 18/01/2021"}
 Client : QUIT
-Broker : 500 byte
+Broker : 500 bye
 
 ----------------------- publisher ---------------------
 
-
-Client : HELO Server
-Broker : 200 Hello
+Client : Hello Server
+Broker : 200 Hello Client
+Client : Hello Server
+Broker : 504 Request Timeout
 Client :  2 { “id”: “0002”, “topic”: “Temperature” , name : "sensor1"} 
 Broker : 210 HELLO Publisher. 
 Client : {  “Data”: “18 độ C”, "Time" : "10:10:60 18/01/2021"}
@@ -43,16 +47,16 @@ Broker : 220 Success . Data save in location . "/location/Temperary/sensor1"
 Client : {  “abc”: “18 độ C”}
 Broker : 400 Invalid data.
 Client : QUIT
-Broker : 500 byte
+Broker : 500 bye
 
 
-200 Hello
-210
-220
-230
-400
-410
-500
+200: Request Succeeded
+210: Hello Name
+220: Data Publisher Succeeded
+230: Not Topic Data
+400: Invalid data
+410: Topic not available
+500: Bye
 
 
 

@@ -4,8 +4,8 @@
  */
 package subcriber;
 import org.json.simple.JSONObject;
-import subcriber.config.ConfigClient;
 import subcriber.model.SubcriberUnique;
+import util.ConfigCommon;
 
 import java.io.*;
 import java.net.Socket;
@@ -22,7 +22,7 @@ public class Subcriber {
 
         try{
             // khởi tạo socket đến server
-            Socket clientSocket = new Socket(ConfigClient.host, ConfigClient.port);
+            Socket clientSocket = new Socket(ConfigCommon.host, ConfigCommon.port);
 
             DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
             DataInputStream in = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
