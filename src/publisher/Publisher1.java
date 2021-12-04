@@ -1,12 +1,16 @@
 package publisher;
 
 import org.json.simple.JSONObject;
+import util.ConfigCommon;
+import util.ConfigMessage;
 
 import java.io.*;
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+
 public class Publisher1
 {
     // initialize socket and input output streams
@@ -48,19 +52,19 @@ public class Publisher1
 
         Scanner scanner = new Scanner(System.in);
         // keep reading until "Over" is input
-        while (!line.equals("QUIT"))
+        while (!line.equals(ConfigMessage.quit))
         {
             try
             {
 
                 // Neu chua chao hoi
                 if (!isHello){
-                    line = "HELLO Server";
+                    line = ConfigMessage.helloServer;
                     isHello = true;
                 }
 
                 // Neu chao hoi roi ma chua gui chi tiet client
-                else if(recvBuf.contains("200")) {
+                else if(recvBuf.contains(ConfigCommon.requestSucceeded.toString())) {
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("id", id);
                         jsonObject.put("topic", topic);
@@ -71,18 +75,12 @@ public class Publisher1
 
                 // Neu da gui chi tiet client thi gui data
                 else if(isSendId){
-                    setTimeout(() -> {
+                    while (true){
+                        Thread.sleep(2000);
                         line = getData();
-                        try {
-                            out.writeUTF(line);
-                            recvBuf = input.readUTF();
-                        }
-                        catch(IOException i)
-                        {
-                            System.out.println(i);
-                        }
-                    }, 1200000);
-
+                        out.writeUTF(line);
+                        recvBuf = input.readUTF();
+                    }
                 }
 
                 out.writeUTF(line);
@@ -99,7 +97,7 @@ public class Publisher1
                 }
                 System.out.println("Message received from server: " + recvBuf);
             }
-            catch(IOException i)
+            catch(IOException | InterruptedException i)
             {
                 System.out.println(i);
             }
@@ -108,7 +106,7 @@ public class Publisher1
         // close the connection
         try
         {
-            out.writeUTF("QUIT");
+            out.writeUTF(ConfigMessage.quit);
             input.close();
             out.close();
             socket.close();
@@ -119,21 +117,6 @@ public class Publisher1
         }
     }
 
-    /**
-     * setTimeout
-     * @author: PVTRONG (27/11/2021)
-     */
-    public static void setTimeout(Runnable runnable, int delay){
-        new Thread(() -> {
-            try {
-                Thread.sleep(delay);
-                runnable.run();
-            }
-            catch (Exception e){
-                System.err.println(e);
-            }
-        }).start();
-    }
 
     /**
      * Tu dong sinh du lieu
@@ -143,11 +126,10 @@ public class Publisher1
     private static String getData() {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-        System.out.println(formatter.format(date));
-        String data = new String();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("Temperature", Math.random() * (maxTemp - minTemp + 1) + minTemp);
         jsonObject.put("Time", formatter.format(date));
+        System.out.println( jsonObject.toString());
         return jsonObject.toString();
     }
 

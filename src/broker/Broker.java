@@ -186,6 +186,7 @@ class ClientHandler extends Thread
 
                     msgToClient = ConfigMessage.msgDataSucceededPub;
                     dataOutputStream.writeUTF(msgToClient);
+                    System.out.println(msgToClient);
                     // send data to subscriber
                 }
                 else if(isSubscriber){
