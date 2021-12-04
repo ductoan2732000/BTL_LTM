@@ -65,7 +65,7 @@ public class SubcriberUnique {
         String string_to_server = "";
         try {
             JSONObject data = new JSONObject();
-            data.put("id", this.id);
+            data.put("id", this.id.toString());
             data.put("name", this.name);
             data.put("topic", this.topic);
             string_to_server = "1 " + data.toJSONString();

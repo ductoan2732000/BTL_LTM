@@ -10,7 +10,10 @@ import java.io.*;
 import java.text.*;
 import java.net.*;
 
-// ???: Chưa hiểu
+/*
+* Phân biệt các role của client
+* */
+
 enum  Identified {
     Subscriber(ConfigCommon.roleSub),
     Publisher(ConfigCommon.rolePub);
@@ -32,7 +35,9 @@ enum  Identified {
     }
 }
 
-// ???: Chưa hiểu
+/*
+* Hứng dữ liêu ở publisher
+* */
 class Instance{
     public String id = null;
     public String topic = null;
@@ -141,7 +146,7 @@ class ClientHandler extends Thread
     public  boolean AuthenSubscriber(String data, Instance instance) throws ParseException {
         // kiểm tra dữ liệu từ file
         // xác thực
-        if(instance.id.equals("0001")){
+        if(instance.id.equals("1001")){
             return true;
         }
         return false;
@@ -166,6 +171,7 @@ class ClientHandler extends Thread
         while (!msgFromClient.equals(ConfigMessage.quit))
         {
             try {
+                // Chỗ này có vấn đề rồi
                 // receive the answer from client
                 msgFromClient = dataInputStream.readUTF();
 
@@ -184,7 +190,7 @@ class ClientHandler extends Thread
                 }
                 else if(isSubscriber){
 
-                    // ???: Có sự thay đổi ở đây
+                    // ???: Có sự thay đổi ở đây. Có vấn đề ở đây. Chia thành 2 case đề gửi dữ liệu về cho client
                     // xử lý dữ liệu subsriber
                     //Broker : 200 Subcriber Success.
                     //Broker : {name : "sensor1", Temperature : "30 độ c", "Time" : "10:10:60 18/01/2021"}

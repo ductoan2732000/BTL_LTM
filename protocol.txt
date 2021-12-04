@@ -23,8 +23,8 @@ Client : Hello Server
 Broker : 200 Hello Client
 Client : Hello Server
 Broker : 504 Request Timeout
-Client : 1 { “id”: “0001”, “name”: “laptopName” } 
-Broker : 210 HELLO laptopName.
+Client : 1 { “id”: “0001”, “name”: “laptopName” } // Không gửi topic
+Broker : 210 Hello laptopName.
 Topic  1. Temperature 2. humidity 3.Hardware
 Client : 10
 Broker : 410 Topic not available. Please enter an existing topic!
@@ -41,7 +41,7 @@ Broker : 200 Hello Client
 Client : Hello Server
 Broker : 504 Request Timeout
 Client :  2 { “id”: “0002”, “topic”: “Temperature” , name : "sensor1"} 
-Broker : 210 HELLO Publisher. 
+Broker : 210 Hello Publisher.
 Client : {  “Data”: “18 độ C”, "Time" : "10:10:60 18/01/2021"}
 Broker : 220 Success . Data save in location . "/location/Temperary/sensor1"
 Client : {  “abc”: “18 độ C”}

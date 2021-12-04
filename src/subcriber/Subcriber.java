@@ -31,6 +31,7 @@ public class Subcriber {
 
             if(helo == false){
                 // kết nối xong thì chào hỏi ngay
+                // Chỗ id để là string
                 SubcriberUnique idenSub = new SubcriberUnique(1001, "tranductoan", "temperature");
                 Integer id = idenSub.getId();
                 String name = idenSub.getName();
@@ -53,7 +54,7 @@ public class Subcriber {
                     output.writeUTF(string_to_server);
                     System.out.println(ConfigMessage.msgCacheClient2 + string_to_server);
                     string_from_server = in.readUTF();
-                    if(!string_from_server.contains(ConfigCommon.helloName.toString()) ){
+                    if(!string_from_server.contains(ConfigCommon.helloName.toString()) ){ // Đoạn này có vấn đề
                         System.out.println(ConfigMessage.requestTimeout);
                         System.exit(-1);
                     }
