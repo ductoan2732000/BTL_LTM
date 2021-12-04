@@ -173,6 +173,7 @@ class ClientHandler extends Thread
             try {
                 // Chỗ này có vấn đề rồi
                 // receive the answer from client
+                msgFromClient = "";
                 msgFromClient = dataInputStream.readUTF();
 
                 if(isPublisher){
