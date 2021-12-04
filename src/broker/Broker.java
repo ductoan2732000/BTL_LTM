@@ -198,7 +198,7 @@ class ClientHandler extends Thread
                     switch (msgFromClient){
                         default :
                             // ???: Chưa hiểu
-                            msgToClient = "210 Subscriber Success";
+                            msgToClient = "230 Subscriber Success";
                             dataOutputStream.writeUTF(msgToClient);
                             // tìm trong thư  mục có tồn tại  topic không pending
                             // fix data
