@@ -9,14 +9,6 @@ import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
-<<<<<<< HEAD
-=======
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
->>>>>>> 320d014da537c8f7bc43eb2a150b95b66cc52980
-import java.util.concurrent.TimeUnit;
 
 public class Publisher1
 {
@@ -82,29 +74,12 @@ public class Publisher1
 
                 // Neu da gui chi tiet client thi gui data
                 else if(isSendId){
-<<<<<<< HEAD
                     while (true){
                         Thread.sleep(2000);
                         line = getData();
                         out.writeUTF(line);
                         recvBuf = input.readUTF();
                     }
-=======
-                    while(true){
-                        TimeUnit.SECONDS.sleep(2);
-                        line = getData();
-                        try {
-                            out.writeUTF(line);
-                            recvBuf = input.readUTF();
-                        }
-                        catch(IOException i)
-                        {
-                            System.out.println(i);
-                        }
-                    }
-
-
->>>>>>> 320d014da537c8f7bc43eb2a150b95b66cc52980
                 }
 
                 out.writeUTF(line);
