@@ -29,7 +29,7 @@ Broker : 1. Subscribe. 2. Unsubscribe
 Client: 2
 Broker : 420 There are no registered topics yet!
 Client : 1
-Broker : 1.Temperature 2.humidity 3.Hardware (!: Mode Option)
+Broker : 1.Temperature 2.humidity 3.Hardware (!: Mode Option) 
 Client : 10,1,2
 Broker : 410 Topic not available. Please enter an existing topic! // nếu 1 id lỗi thì coi như cả mảng id là lỗi=> không đăng ký thành công
 Client : 1,2 // cả 3 id đều có trong id => đăng ký thành công
@@ -39,7 +39,7 @@ Broker : {name : "sensor1", Temperature : "30 độ c", "Time" : "10:10:60 18/01
 Broker : {name : "sensor1", Hardware : "3 độ c", "Time" : "10:10:60 18/01/2021"}  //20s 1 lần
 
 Client : !
-Broker : 1.Temperature 2.humidity 3.Hardware (!: Mode Option)
+Broker : 1. Subscribe. 2. Unsubscribe
 Client : 1
 // bên server phải check trong mảng đã đăng ký của client này [1,2]
 Broker : 3.Hardware (!: Mode Option)
