@@ -25,13 +25,36 @@ Client : Hello Server
 Broker : 504 Request Timeout
 Client : 1 { “id”: “0001”, “name”: “laptopName” } // Không gửi topic
 Broker : 210 Hello laptopName.
-Topic  1. Temperature 2. humidity 3.Hardware
+Broker : 1. Subscribe. 2. Unsubscribe
+Client: 2
+Broker : 420 There are no registered topics yet!
+Client : 1
+Broker : 1.Temperature 2.humidity 3.Hardware (!: Mode Option)
+Client : 10,1,2
+Broker : 410 Topic not available. Please enter an existing topic! // nếu 1 id lỗi thì coi như cả mảng id là lỗi=> không đăng ký thành công
+Client : 1,2 // cả 3 id đều có trong id => đăng ký thành công
+Broker : 230 Subscribe to the topics successfully. (!: Mode Option)
+// đẻ ra một màn console mới để show data, màn cũ vẫn để chọn sub và unsub
+Broker : {name : "sensor1", Temperature : "30 độ c", "Time" : "10:10:60 18/01/2021"}
+Broker : {name : "sensor1", Hardware : "3 độ c", "Time" : "10:10:60 18/01/2021"}  //20s 1 lần
+
+Client : !
+Broker : 1.Temperature 2.humidity 3.Hardware (!: Mode Option)
+Client : 1
+// bên server phải check trong mảng đã đăng ký của client này [1,2]
+Broker : 3.Hardware (!: Mode Option)
+Client : 3
+Broker : 230 Subscribe to the topics successfully. (!: Mode Option)
+Client : !
+Broker : 1. Subscribe. 2. Unsubscribe
+Client : 2
+Broker : 1.Temperature 2.humidity 3.Hardware (!: Mode Option)
 Client : 10
 Broker : 410 Topic not available. Please enter an existing topic!
 Client : 1
-Broker : 230 Subscribe to the topic successfully. No new data yet
-Broker : {name : "sensor1", Temperature : "30 độ c", "Time" : "10:10:60 18/01/2021"}
+Broker : 240 Unsubscribe to the topics successfully. (!: Mode Option)
 Client : QUIT
+// tắt màn console data đi
 Broker : 500 bye
 
 ----------------------- publisher ---------------------
@@ -54,16 +77,14 @@ Broker : 500 bye
 210: Hello Name
 220: Data Publisher Succeeded
 230: Not Topic Data
+240: Unsubscribe to the topics successfully
 400: Invalid data
 410: Topic not available
 500: Bye
 
-
-
-
-
-
-
+// todo
+1. mảng subscribe có 1 id lỗi thì ko cho đăng ký
+2. hủy đăng ký, đăng ký mới (protocl ở trên)
 
 
 
