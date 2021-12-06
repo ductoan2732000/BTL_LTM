@@ -24,28 +24,43 @@ Client : Hello Server
 Broker : 504 Request Timeout
 Client : 1 { “id”: “0001”, “name”: “laptopName” } // Không gửi topic
 Broker : 210 Hello laptopName.
-Broker : 1. Subscribe. 2. Unsubscribe
+
+// todo : Vũ nhớ chỗ này - cứ gõ ! thì quay lại bước chọn đăng ký (dòng 29)
+// todo : case check lần đầu tiên vào chương trình
+Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time // first time
 Client : 2
-Broker : 420 There are no registered topics yet!
+Broker : 420 There are no registered topics yet (!: Mode Option)
 Client : 1
 Broker : 1.Temperature 2.Humidity 3.Hardware (!: Mode Option) 
 Client : 10,1,2
-Broker : 410 Topic not available. Please enter an existing topic! // nếu 1 id lỗi thì coi như cả mảng id là lỗi=> không đăng ký thành công
+Broker : 410 Topic not available. Please enter an existing topic! (!: Mode Option)  // nếu 1 id lỗi thì coi như cả mảng id là lỗi=> không đăng ký thành công
 Client : 1,2 // cả 3 id đều có trong id => đăng ký thành công
 Broker : 230 Subscribe to the topics successfully. (!: Mode Option)
-// đẻ ra một màn console mới để show data, màn cũ vẫn để chọn sub và unsub
+// first time = true
 Broker : {"data":"26 độ c","name":"sensor2","topicName":"Humidity","Time" : "10:10:60 18/01/2021"}
 Broker : {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
 
 Client : !
-Broker : 1. Subscribe. 2. Unsubscribe
+Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
+Client : 3
+Broker : 250 Continue get Data (!: Mode Option)
+Broker : {"data":"26 độ c","name":"sensor2","topicName":"Humidity","Time" : "10:10:60 18/01/2021"}
+Broker : {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
+
+
+Client : !
+Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
 Client : 1
 // bên server phải check trong mảng đã đăng ký của client này [1,2]
 Broker : 3.Hardware (!: Mode Option)
 Client : 3
 Broker : 230 Subscribe to the topics successfully. (!: Mode Option)
+
+Broker : {"data":"26 độ c","name":"sensor2","topicName":"Humidity","Time" : "10:10:60 18/01/2021"}
+Broker : {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
+
 Client : !
-Broker : 1. Subscribe. 2. Unsubscribe
+Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
 Client : 2
 Broker : 1.Temperature 2.humidity 3.Hardware (!: Mode Option)
 Client : 10
@@ -53,7 +68,6 @@ Broker : 410 Topic not available. Please enter an existing topic!
 Client : 1
 Broker : 240 Unsubscribe to the topics successfully. (!: Mode Option)
 Client : QUIT
-// tắt màn console data đi
 Broker : 500 bye
 
 ----------------------- publisher ---------------------
