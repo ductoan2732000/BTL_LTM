@@ -1,0 +1,26 @@
+ [
+    {
+      "name" : "sensor1",
+      "data" : "30 độ c",
+      "topicName": "Temperature",
+      "Time" : "10:10:60 18/01/2021"
+    },
+    {
+      "name" : "sensor2",
+      "data" : "26 độ c",
+      "topicName": "Humidity",
+      "Time" : "10:10:60 20/01/2021"
+    },
+    {
+      "name" : "sensor3",
+      "data" : "35 độ c",
+      "topicName": "Hardware",
+      "Time" : "10:10:60 25/01/2021"
+    },
+    {
+      "name" : "sensor4",
+      "data" : "35 độ c",
+      "topicName": "Sensor",
+      "Time" : "10:10:60 25/01/2021"
+    }
+  ]

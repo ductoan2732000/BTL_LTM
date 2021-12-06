@@ -17,4 +17,9 @@ public class ConfigCommon {
     // Role Client
     public static final String roleSub = "1";
     public static final String rolePub = "2";
+
+    // Sub and Unsub
+    public static final String subTopic = "1";
+    public static final String unsubTopic = "2";
+    public static final String rollback = "!";
 }

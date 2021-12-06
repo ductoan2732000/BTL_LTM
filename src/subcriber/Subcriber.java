@@ -85,21 +85,23 @@ public class Subcriber {
                 else{
                     output.writeUTF(string_to_server );
                     string_from_server = in.readUTF();
-                    if(string_from_server.contains(ConfigCommon.successTopicData.toString())){
-                        System.out.println(ConfigMessage.msgCacheClient1 + string_from_server);
-                        send = true;
-                    }
+//                    if(string_from_server.contains(ConfigCommon.successTopicData.toString())){
+//                        System.out.println(ConfigMessage.msgCacheClient1 + string_from_server);
+//                        send = true;
+//                    }
+                    System.out.println("Server: " + string_from_server) ;
                 }
             }
             // đến phần lắng nghe server
-            while (helo == true && send == true && listen == false){
-                // todo:
-                //  1.xử lý phần đang nghe từ server nhưng lại nhập input và dừng ct
-                //  2.nếu bên public die thì dùng ct
-                //  3. nếu server die thì dừng ct
-                string_from_server = in.readUTF();
-                System.out.println(ConfigMessage.msgCacheClient1 + string_from_server);
-            }
+//            while (helo == true && send == true && listen == false){
+//                // todo:
+//                //  1.xử lý phần đang nghe từ server nhưng lại nhập input và dừng ct
+//                //  2.nếu bên public die thì dùng ct
+//                //  3. nếu server die thì dừng ct
+//                string_from_server = in.readUTF();
+//
+//                System.out.println(ConfigMessage.msgCacheClient1 + string_from_server);
+//            }
 
 
         }

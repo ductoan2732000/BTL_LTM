@@ -1,5 +1,6 @@
 package broker;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -9,6 +10,9 @@ import util.ConfigMessage;
 import java.io.*;
 import java.text.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /*
 * Phân biệt các role của client
@@ -133,11 +137,9 @@ class ClientHandler extends Thread
         return msgToClient;
     }
 
-    // ???: Chưa hiểu
     public String processPublisher(String data) throws ParseException {
         // xác thực
 
-    // ???: Chưa hiểu
         Instance instance = Instance.CreateInstance(data);
         System.out.println(instance.GetInfoInstance(instance));
         return null;
@@ -167,7 +169,13 @@ class ClientHandler extends Thread
         String msgToClient = "";
         boolean isSubscriber = false;
         boolean isPublisher = false;
+        boolean isRollback = true;
+        boolean isSub = false;
+        boolean isUnsub = false;
         Instance instance = null;
+        String[] topics = Util.ArrayTopic();
+        String[] subTopics = new String[topics.length];
+
         while (!msgFromClient.equals(ConfigMessage.quit))
         {
             try {
@@ -183,47 +191,80 @@ class ClientHandler extends Thread
                     WriteFile(instance, msgFromClient);
 
                     // ???: Chỗ location thì sẽ như thế nào
-//                    msgToClient = "200 Success. Data save in location . \"/location/Temperary/sensor1\"";
+                    // msgToClient = "200 Success. Data save in location . \"/location/Temperary/sensor1\"";
 
                     msgToClient = ConfigMessage.msgDataSucceededPub;
                     dataOutputStream.writeUTF(msgToClient);
                     System.out.println(msgToClient);
                     // send data to subscriber
                 }
-                else if(isSubscriber){
-
-                    // ???: Có sự thay đổi ở đây. Có vấn đề ở đây. Chia thành 2 case đề gửi dữ liệu về cho client
-                    // xử lý dữ liệu subsriber
-                    //Broker : 200 Subcriber Success.
-                    //Broker : {name : "sensor1", Temperature : "30 độ c", "Time" : "10:10:60 18/01/2021"}
-                    // nhập topic : tìm kiếm location, lưu log
+                else if(isSubscriber && isRollback){
                     switch (msgFromClient){
+                        case ConfigCommon.subTopic:
+                            for(int i = 0; i < topics.length; i++) {
+                                msgToClient += i + 1 + ". " + topics[i] + " ";
+                            }
+                            isSub = true;
+                            isRollback = false;
+                            break;
+                        case ConfigCommon.unsubTopic:
+                            break;
+                        case  ConfigCommon.rollback:
+
+                            break;
+
                         default :
-                            // ???: Chưa hiểu
-                            msgToClient = "230 Subscriber Success";
-                            dataOutputStream.writeUTF(msgToClient);
-                            // tìm trong thư  mục có tồn tại  topic không pending
-                            // fix data
                             String path = "pnthuan/Location/thuan/thuan";
                             msgFromClient = ReadFile(path);
                             dataOutputStream.writeUTF(msgFromClient);
                             break;
                     }
+                    dataOutputStream.writeUTF(msgToClient);
+                }
+                else if(isSub) {
+                    String[] dataSub = Util.convertStringToArray(msgFromClient);
+
+                    for (int i = 0; i < dataSub.length; i++){
+                        int number = Integer.parseInt(dataSub[i]);
+                        if(topics.length < number ) {
+                            msgToClient = "410 Topic not available. Please enter an existing topic!";
+                            dataOutputStream.writeUTF(msgToClient);
+                            break;
+                        }else {
+                            subTopics[i] = topics[number-1];
+                        }
+                    }
+                    JSONArray topicArray = ReadTopicJsonFile();
+                    msgToClient = "\n";
+
+                    for(int index = 0; index < topicArray.size(); index ++ ){
+                        JSONObject obj = (JSONObject) topicArray.get(index);
+
+                        if(obj.get("topicName").toString().equals(subTopics[index])){
+                            msgToClient += obj.toString() + "\n";
+                        }
+                    }
+                    isSub = false;
+                    dataOutputStream.writeUTF(msgToClient);
+                    msgToClient = "";
+                    Arrays.fill(dataSub, null);
+                    Arrays.fill(subTopics, null);
                 }
                 else {
                     String roleClient = null;
-                    String data = null;
+                    String data = "";
                     try {
                          roleClient = msgFromClient.substring(0, 1);
-                         data = msgFromClient.substring(2);
-                         instance = Instance.CreateInstance(data);
+                         if(msgFromClient.length() > 1) {
+                             data = msgFromClient.substring(2);
+                             instance = Instance.CreateInstance(data);
+                         }
                     }
                     catch (Exception e){
                         instance = null;
                         roleClient = "-1";
                         System.out.println("Lỗi parse data từ client" + e);
                     }
-                    System.out.println("Giá trị i : " + roleClient);
 
                     switch (roleClient){
                         case ConfigCommon.rolePub:
@@ -234,22 +275,27 @@ class ClientHandler extends Thread
                             }
                             break;
                         case ConfigCommon.roleSub:
-                            if(AuthenSubscriber(data, instance))
-                            {
+                            case ConfigCommon.rollback:
+//                            if(AuthenSubscriber(data, instance) || roleClient)
+//                            {
                                 isPublisher = false;
                                 isSubscriber = true;
+                                isRollback = true;
                                 // tạm fix dữ liệu
-                                msgToClient = ConfigMessage.helloName + instance.name + "\n Topic : 1. Temperature 2. humidity 3.....";
-                            }
+                                msgToClient = ConfigMessage.helloName + instance.name + "\n 1. Subscribe. 2. Unsubscribe";
+
+                                if(!data.isEmpty()) {
+                                    WriteSubscriberJsonFile(data);
+                                }
+//                            }
                             break;
                         default:
                             msgToClient = processData(msgFromClient);
                             break;
                         }
 
-                    System.out.println("Message from Client (port: " + this.socket.getPort()+ ") : " + msgFromClient);
                     dataOutputStream.writeUTF(msgToClient);
-                    System.out.println("Message to Client (port: "+this.socket.getPort()+") : "+msgToClient);
+                    msgToClient = "";
                 }
             } catch (IOException | ParseException e) {
                 e.printStackTrace();
@@ -320,6 +366,46 @@ class ClientHandler extends Thread
 
         }
         return  "Không có dữ liệu dkm";
+    }
+
+    // Lưu mảng vào file json
+    public void WriteSubscriberJsonFile(String data) throws ParseException {
+        JSONParser dataParser = new JSONParser();
+        JSONArray subscribersArray = new JSONArray();
+//        JSONObject subscriberObject = new JSONObject();
+
+        JSONObject json = (JSONObject) dataParser.parse(data);
+
+        subscribersArray.add(json);
+//        subscriberObject.put("subscribers", subscribersArray);
+        try (FileWriter file = new FileWriter("src/broker/db/subscribers.json")) {
+//            file.write(subscriberObject.toJSONString());
+            file.write(subscribersArray.toString());
+            file.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public JSONArray ReadTopicJsonFile() throws ParseException {
+        JSONParser jsonParser = new JSONParser();
+
+        try (FileReader reader = new FileReader("src/broker/db/topic-detail.json"))
+        {
+            //Read JSON file
+            Object obj = jsonParser.parse(reader);
+
+            JSONArray employeeList = (JSONArray) obj;
+
+            return employeeList;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }
