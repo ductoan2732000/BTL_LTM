@@ -21,7 +21,6 @@ public class ClientTest {
         String string_to_server;
         String string_from_server;
 
-
         try{
             // khởi tạo socket đến server
             Socket clientSocket = new Socket(ConfigCommon.host, ConfigCommon.port);
