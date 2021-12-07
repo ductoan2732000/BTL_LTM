@@ -10,9 +10,9 @@ import util.ConfigMessage;
 import java.io.*;
 import java.text.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+/*
+* Socket nonblocking
+* */
 
 /*
 * Phân biệt các role của client
@@ -111,7 +111,7 @@ class ClientHandler extends Thread
     final DataInputStream dataInputStream;
     final DataOutputStream dataOutputStream;
     final Socket socket;
-    
+
     // Constructor
     public ClientHandler(Socket socket, DataInputStream dataInputStream, DataOutputStream dataOutputStream)
     {
@@ -211,7 +211,6 @@ class ClientHandler extends Thread
                 else if(isSubscriber && msgFromClient.equals(ConfigCommon.rollbackSubscriberOption)){
                     isPublisher = false;
                     isSubscriberOption = true;
-                    // tạm fix dữ liệu
                     msgToClient = "1. Subscribe. 2. Unsubscribe. 3. Show data subscribe last time";
                     dataOutputStream.writeUTF(msgToClient);
                     msgToClient = "";
@@ -274,41 +273,49 @@ class ClientHandler extends Thread
                 }
                 else if(isSubscriber && isSub) { // Khi bam vao option va la sub
                     String[] dataSub = Util.convertStringToArray(msgFromClient); // Mảng lưu số của topic
-
+                    boolean isErrorNumber = false;
                     // Xử lý việc sub
                     for (int i = 0; i < dataSub.length; i++){
                         int number = Integer.parseInt(dataSub[i]);
-                        if(topicArray.size() < number ) {
-                            msgToClient = "410 Topic not available. Please enter an existing topic!";
-                            dataOutputStream.writeUTF(msgToClient);
+                        if(number > topicArray.size()) {
+                            // Xử lý việc nếu nhập không trong giới hạn của topic
+                            msgToClient = "410 Topic not available. Please enter an existing topic!\n(!: Mode Option)";
+                            isSubscriberOption = false;
+                            isErrorNumber = true;
                             break;
                         } else {
                             JSONObject obj = (JSONObject) topicArray.get(number - 1);
                             subscribedArray[number - 1] = (String) obj.get("topicName");
                         }
                     }
-                    msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+
+                    if(!isErrorNumber) {
+                        msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+                        isSubscribed = true;
+                    }
 
                     isSub = false;
-                    isSubscribed = true;
                     dataOutputStream.writeUTF(msgToClient);
                     msgToClient = "";
                 }
                 else if(isSubscriber && isUnsub) { // Khi bam vao option va la unsub
                     String[] dataSub = Util.convertStringToArray(msgFromClient);
-
+                    boolean isErrorNumber = false;
                     // Xử lý việc unsub
                     for (int i = 0; i < dataSub.length; i++){
                         int number = Integer.parseInt(dataSub[i]);
                         if(topicArray.size() < number ) {
-                            msgToClient = "410 Topic not available. Please enter an existing topic!";
-                            dataOutputStream.writeUTF(msgToClient);
+                            msgToClient = "410 Topic not available. Please enter an existing topic!\n(!: Mode Option)";
+                            isSubscriberOption = false;
+                            isErrorNumber = true;
                             break;
                         } else {
                             subscribedArray[number - 1] = null;
                         }
                     }
-                    msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+                    if(!isErrorNumber) {
+                        msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+                    }
 
                     // Nếu mảng mà là null hết thì isSubscribed = false
                     // Nếu mảng mà có 1 phần tử k null hết thì isSubscribed = true
