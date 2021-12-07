@@ -172,9 +172,16 @@ class ClientHandler extends Thread
         boolean isRollback = true;
         boolean isSub = false;
         boolean isUnsub = false;
+        boolean isSubscribed = false;
         Instance instance = null;
-        String[] topics = Util.ArrayTopic();
-        String[] subTopics = new String[topics.length];
+        JSONArray topicArray = null;
+
+        try {
+            topicArray = ReadTopicJsonFile();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        String[] subscribedArray = new String[topicArray.size()];
 
         while (!msgFromClient.equals(ConfigMessage.quit))
         {
@@ -201,54 +208,102 @@ class ClientHandler extends Thread
                 else if(isSubscriber && isRollback){
                     switch (msgFromClient){
                         case ConfigCommon.subTopic:
-                            for(int i = 0; i < topics.length; i++) {
-                                msgToClient += i + 1 + ". " + topics[i] + " ";
+                            if (isSubscribed){
+                                for(int index = 0; index < topicArray.size(); index ++ ){
+                                    JSONObject obj = (JSONObject) topicArray.get(index);
+
+                                    if(!obj.get("topicName").toString().equals(subscribedArray[index])){
+                                        msgToClient += index + 1 + ". " + obj.get("topicName") + " ";
+                                    }
+                                }
+                            } else {
+                                for(int index = 0; index < topicArray.size(); index++) {
+                                    JSONObject obj = (JSONObject) topicArray.get(index);
+                                    msgToClient += index + 1 + ". " + obj.get("topicName") + " ";
+                                }
                             }
                             isSub = true;
                             isRollback = false;
                             break;
                         case ConfigCommon.unsubTopic:
-                            break;
-                        case  ConfigCommon.rollback:
+                            if (isSubscribed){
+                                for(int index = 0; index < topicArray.size(); index ++ ){
+                                    JSONObject obj = (JSONObject) topicArray.get(index);
 
+                                    if(obj.get("topicName").toString().equals(subscribedArray[index])){
+                                        msgToClient += index + 1 + ". " + obj.get("topicName") + " ";
+                                    }
+                                }
+                            } else {
+                                msgToClient += "420 There are no registered topics yet!";
+                            }
+                            isUnsub = true;
+                            isSub = false;
+                            isRollback = false;
                             break;
-
                         default :
-                            String path = "pnthuan/Location/thuan/thuan";
-                            msgFromClient = ReadFile(path);
+                            msgFromClient = "400 Invalid data."; // để tạm, tính sau
                             dataOutputStream.writeUTF(msgFromClient);
                             break;
                     }
                     dataOutputStream.writeUTF(msgToClient);
                 }
                 else if(isSub) {
-                    String[] dataSub = Util.convertStringToArray(msgFromClient);
+                    String[] dataSub = Util.convertStringToArray(msgFromClient); // Mảng lưu số của topic
 
                     for (int i = 0; i < dataSub.length; i++){
                         int number = Integer.parseInt(dataSub[i]);
-                        if(topics.length < number ) {
+                        if(topicArray.size() < number ) {
                             msgToClient = "410 Topic not available. Please enter an existing topic!";
                             dataOutputStream.writeUTF(msgToClient);
                             break;
-                        }else {
-                            subTopics[i] = topics[number-1];
+                        } else {
+                            JSONObject obj = (JSONObject) topicArray.get(number - 1);
+                            subscribedArray[number - 1] = (String) obj.get("topicName");
                         }
                     }
-                    JSONArray topicArray = ReadTopicJsonFile();
                     msgToClient = "\n";
 
                     for(int index = 0; index < topicArray.size(); index ++ ){
                         JSONObject obj = (JSONObject) topicArray.get(index);
 
-                        if(obj.get("topicName").toString().equals(subTopics[index])){
+                        if(obj.get("topicName").toString().equals(subscribedArray[index])){
                             msgToClient += obj.toString() + "\n";
                         }
                     }
+
                     isSub = false;
+                    isSubscribed = true;
                     dataOutputStream.writeUTF(msgToClient);
                     msgToClient = "";
-                    Arrays.fill(dataSub, null);
-                    Arrays.fill(subTopics, null);
+                }
+
+                else if(isUnsub) {
+                    String[] dataSub = Util.convertStringToArray(msgFromClient);
+
+                    for (int i = 0; i < dataSub.length; i++){
+                        int number = Integer.parseInt(dataSub[i]);
+                        if(topicArray.size() < number ) {
+                            msgToClient = "410 Topic not available. Please enter an existing topic!";
+                            dataOutputStream.writeUTF(msgToClient);
+                            break;
+                        } else {
+                            subscribedArray[number - 1] = null;
+                        }
+                    }
+                    msgToClient = "\n ";
+
+                    for(int index = 0; index < topicArray.size(); index ++ ){
+                        JSONObject obj = (JSONObject) topicArray.get(index);
+                        if(obj.get("topicName").toString().equals(subscribedArray[index])){
+                            msgToClient += obj.toString() + "\n ";
+                        }
+                    }
+
+                    isUnsub = false;
+                    isSubscribed = true;
+                    dataOutputStream.writeUTF(msgToClient);
+                    msgToClient = "";
                 }
                 else {
                     String roleClient = null;
@@ -318,9 +373,6 @@ class ClientHandler extends Thread
         }
     }
 
-    public  void GetDataFromFile(){
-
-    }
     public void WriteFile(Instance  instance, String content) throws IOException {
         // ???: Chưa hiểu
         String directoryName = "pnthuan/Location/" + instance.topic  + "/";
