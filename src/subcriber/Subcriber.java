@@ -4,6 +4,7 @@
  */
 package subcriber;
 import org.json.simple.JSONObject;
+import subcriber.common.threadNonBlocking;
 import subcriber.model.SubcriberUnique;
 import util.ConfigCommon;
 import util.ConfigMessage;
@@ -12,12 +13,11 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 public class Subcriber {
-    public static void main(String argv[]) throws Exception
+    public static Boolean isShow = true;
+    public static void main(String argv[])
     {
-        Integer subscriber = 1;
         Boolean helo = false;
-        Boolean send = false;
-        Boolean listen = false;
+        Boolean hasNonblockingSocet = false;
         String string_to_server;
         String string_from_server;
 
@@ -66,52 +66,50 @@ public class Subcriber {
             }
             helo = true; // đã chào hỏi xong
 
-
+            Scanner ip= new Scanner(System.in);
             // chào hỏi xong thì đến phần gửi topic
-            while (helo == true && send == false){
-                Scanner ip= new Scanner(System.in);
+            while (helo == true){
+                // neeus có nhập input
+                if(ip.hasNext()){
+                    isShow = false;
+                    System.out.print(ConfigMessage.msgCacheClient2);
+                    string_to_server = ip.nextLine();
 
-                System.out.print(ConfigMessage.msgCacheClient2);
-                string_to_server = ip.nextLine();
+                    if(string_to_server.equals(ConfigMessage.quit) ){
+                        output.writeUTF(string_to_server );
+                        string_from_server = in.readUTF();
+                        System.out.println(ConfigMessage.msgCacheClient1 + string_from_server);
+                        clientSocket.close();
+                        break;
+                    }
+                    else{
 
+                        output.writeUTF(string_to_server );
+                        string_from_server = in.readUTF();
+                        System.out.println(ConfigMessage.msgCacheClient1 + string_from_server) ;
+                        if(string_from_server.contains(ConfigCommon.successTopicData.toString())){
+                            // nếu chưa có socket nonblocking thì tạo mới và nghe data
+                            if(!hasNonblockingSocet){
+                                try {
+                                    new Thread(new threadNonBlocking()).start();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                hasNonblockingSocet = true;
+                            }
+                            isShow = true;
+                        }
 
-                if(string_to_server.equals(ConfigMessage.quit) ){
-                    output.writeUTF(string_to_server );
-                    string_from_server = in.readUTF();
-                    System.out.println(ConfigMessage.msgCacheClient1 + string_from_server);
-                    clientSocket.close();
-                    break;
+                    }
                 }
-                else{
-                    output.writeUTF(string_to_server );
-                    string_from_server = in.readUTF();
-//                    if(string_from_server.contains(ConfigCommon.successTopicData.toString())){
-//                        System.out.println(ConfigMessage.msgCacheClient1 + string_from_server);
-//                        send = true;
-//                    }
-                    System.out.println("Server: " + string_from_server) ;
-                }
+
             }
-            // đến phần lắng nghe server
-//            while (helo == true && send == true && listen == false){
-//                // todo:
-//                //  1.xử lý phần đang nghe từ server nhưng lại nhập input và dừng ct
-//                //  2.nếu bên public die thì dùng ct
-//                //  3. nếu server die thì dừng ct
-//                string_from_server = in.readUTF();
-//
-//                System.out.println(ConfigMessage.msgCacheClient1 + string_from_server);
-//            }
-
 
         }
         catch (Exception e){
             System.out.println(e);
             System.exit(-1);
         }
-
-
-
         System.exit(-1);
     }
 }
