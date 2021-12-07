@@ -167,14 +167,24 @@ class ClientHandler extends Thread
     {
         String msgFromClient = "";
         String msgToClient = "";
+
         boolean isSubscriber = false;
         boolean isPublisher = false;
-        boolean isRollback = true;
+        boolean isSubscriberOption = false;
         boolean isSub = false;
         boolean isUnsub = false;
+        boolean isSubscribed = false;
+        boolean isRole = false;
+
         Instance instance = null;
-        String[] topics = Util.ArrayTopic();
-        String[] subTopics = new String[topics.length];
+        JSONArray topicArray = null;
+
+        try {
+            topicArray = ReadTopicJsonFile();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        String[] subscribedArray = new String[topicArray.size()];
 
         while (!msgFromClient.equals(ConfigMessage.quit))
         {
@@ -198,61 +208,140 @@ class ClientHandler extends Thread
                     System.out.println(msgToClient);
                     // send data to subscriber
                 }
-                else if(isSubscriber && isRollback){
+                else if(isSubscriber && msgFromClient.equals(ConfigCommon.rollbackSubscriberOption)){
+                    isPublisher = false;
+                    isSubscriberOption = true;
+                    // tạm fix dữ liệu
+                    msgToClient = "1. Subscribe. 2. Unsubscribe. 3. Show data subscribe last time";
+                    dataOutputStream.writeUTF(msgToClient);
+                    msgToClient = "";
+                }
+                else if(isSubscriber && isSubscriberOption){ // Khi bam vao cac option
                     switch (msgFromClient){
                         case ConfigCommon.subTopic:
-                            for(int i = 0; i < topics.length; i++) {
-                                msgToClient += i + 1 + ". " + topics[i] + " ";
+                            if (isSubscribed){
+                                for(int index = 0; index < topicArray.size(); index ++ ){
+                                    JSONObject obj = (JSONObject) topicArray.get(index);
+
+                                    if(!obj.get("topicName").toString().equals(subscribedArray[index])){
+                                        msgToClient += index + 1 + ". " + obj.get("topicName") + " ";
+                                    }
+                                }
+                            } else {
+                                for(int index = 0; index < topicArray.size(); index++) {
+                                    JSONObject obj = (JSONObject) topicArray.get(index);
+                                    msgToClient += index + 1 + ". " + obj.get("topicName") + " ";
+                                }
                             }
+                            msgToClient += "\n(!: Mode Option)";
                             isSub = true;
-                            isRollback = false;
+                            isUnsub = false;
+                            isSubscriberOption = false;
                             break;
                         case ConfigCommon.unsubTopic:
-                            break;
-                        case  ConfigCommon.rollback:
+                            if (isSubscribed){
+                                for(int index = 0; index < topicArray.size(); index ++ ){
+                                    JSONObject obj = (JSONObject) topicArray.get(index);
 
+                                    if(obj.get("topicName").toString().equals(subscribedArray[index])){
+                                        msgToClient += index + 1 + ". " + obj.get("topicName") + " ";
+                                    }
+                                }
+                                isUnsub = true;
+                            } else {
+                                msgToClient += "420 There are no registered topics yet";
+                            }
+                            msgToClient += "\n(!: Mode Option)";
+                            isSub = false;
+                            isSubscriberOption = false;
                             break;
-
+                        case ConfigCommon.showDataTopic:
+                            isSubscriberOption = false;
+                            isUnsub = false;
+                            isSub = false;
+                            msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+                            break;
                         default :
-                            String path = "pnthuan/Location/thuan/thuan";
-                            msgFromClient = ReadFile(path);
-                            dataOutputStream.writeUTF(msgFromClient);
+                            isUnsub = false;
+                            isSub = false;
+                            isSubscriberOption = false;
+                            msgToClient = "400 Invalid data.\n(!: Mode Option)"; // để tạm, tính sau
                             break;
                     }
-                    dataOutputStream.writeUTF(msgToClient);
-                }
-                else if(isSub) {
-                    String[] dataSub = Util.convertStringToArray(msgFromClient);
 
+                    dataOutputStream.writeUTF(msgToClient);
+                    msgToClient = "";
+                }
+                else if(isSubscriber && isSub) { // Khi bam vao option va la sub
+                    String[] dataSub = Util.convertStringToArray(msgFromClient); // Mảng lưu số của topic
+
+                    // Xử lý việc sub
                     for (int i = 0; i < dataSub.length; i++){
                         int number = Integer.parseInt(dataSub[i]);
-                        if(topics.length < number ) {
+                        if(topicArray.size() < number ) {
                             msgToClient = "410 Topic not available. Please enter an existing topic!";
                             dataOutputStream.writeUTF(msgToClient);
                             break;
-                        }else {
-                            subTopics[i] = topics[number-1];
+                        } else {
+                            JSONObject obj = (JSONObject) topicArray.get(number - 1);
+                            subscribedArray[number - 1] = (String) obj.get("topicName");
                         }
                     }
-                    JSONArray topicArray = ReadTopicJsonFile();
-                    msgToClient = "\n";
+                    msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
 
-                    for(int index = 0; index < topicArray.size(); index ++ ){
-                        JSONObject obj = (JSONObject) topicArray.get(index);
-
-                        if(obj.get("topicName").toString().equals(subTopics[index])){
-                            msgToClient += obj.toString() + "\n";
-                        }
-                    }
                     isSub = false;
+                    isSubscribed = true;
                     dataOutputStream.writeUTF(msgToClient);
                     msgToClient = "";
-                    Arrays.fill(dataSub, null);
-                    Arrays.fill(subTopics, null);
+                }
+                else if(isSubscriber && isUnsub) { // Khi bam vao option va la unsub
+                    String[] dataSub = Util.convertStringToArray(msgFromClient);
+
+                    // Xử lý việc unsub
+                    for (int i = 0; i < dataSub.length; i++){
+                        int number = Integer.parseInt(dataSub[i]);
+                        if(topicArray.size() < number ) {
+                            msgToClient = "410 Topic not available. Please enter an existing topic!";
+                            dataOutputStream.writeUTF(msgToClient);
+                            break;
+                        } else {
+                            subscribedArray[number - 1] = null;
+                        }
+                    }
+                    msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+
+                    // Nếu mảng mà là null hết thì isSubscribed = false
+                    // Nếu mảng mà có 1 phần tử k null hết thì isSubscribed = true
+                    int countNull = 0;
+                    int countNotNull = 0;
+                    for (int i = 0; i < subscribedArray.length; i++){
+                        if(subscribedArray[i] != null ) {
+                            countNotNull++;
+                        } else {
+                            countNull++;
+                        }
+                    }
+
+                    if(countNull == subscribedArray.length){
+                        isSubscribed = false;
+                    }
+
+                    if(countNotNull > 0) {
+                        isSubscribed = true;
+                    }
+
+                    isUnsub = false;
+                    dataOutputStream.writeUTF(msgToClient);
+                    msgToClient = "";
+                }
+                else if(isSubscriber && isRole) {
+                    dataOutputStream.writeUTF(ConfigMessage.msgInvalidDataPub + " (!: Mode Option)");
                 }
                 else {
                     String roleClient = null;
                     String data = "";
+                    isRole = true;
+
                     try {
                          roleClient = msgFromClient.substring(0, 1);
                          if(msgFromClient.length() > 1) {
@@ -275,16 +364,15 @@ class ClientHandler extends Thread
                             }
                             break;
                         case ConfigCommon.roleSub:
-                            case ConfigCommon.rollback:
 //                            if(AuthenSubscriber(data, instance) || roleClient)
 //                            {
-                                isPublisher = false;
-                                isSubscriber = true;
-                                isRollback = true;
-                                // tạm fix dữ liệu
-                                msgToClient = ConfigMessage.helloName + instance.name + "\n 1. Subscribe. 2. Unsubscribe";
-
                                 if(!data.isEmpty()) {
+                                    isPublisher = false;
+                                    isSubscriber = true;
+                                    isSubscriberOption = true;
+                                    // Hiện tại đang chỉ vào đây 1 lần chào hỏi duy nhất. Có thể bỏ số 3 đi
+                                    msgToClient = ConfigMessage.helloName + instance.name + "\n 1. Subscribe. 2. Unsubscribe. 3. Show data subscribe last time";
+
                                     WriteSubscriberJsonFile(data);
                                 }
 //                            }
@@ -318,9 +406,6 @@ class ClientHandler extends Thread
         }
     }
 
-    public  void GetDataFromFile(){
-
-    }
     public void WriteFile(Instance  instance, String content) throws IOException {
         // ???: Chưa hiểu
         String directoryName = "pnthuan/Location/" + instance.topic  + "/";
@@ -406,6 +491,23 @@ class ClientHandler extends Thread
             e.printStackTrace();
         }
         return null;
+    }
+
+    public String showSubscribingToData(String msgToClient, JSONArray topicArray, String[] subscribedArray){
+        for(int index = 0; index < topicArray.size(); index ++ ){
+            JSONObject obj = (JSONObject) topicArray.get(index);
+
+            if(obj.get("topicName").toString().equals(subscribedArray[index])){
+                msgToClient += "\n" + obj;
+            }
+        }
+
+        if(msgToClient.isEmpty()) {
+            msgToClient += "420 There are no registered topics yet";
+        }
+
+        msgToClient += "\n(!: Mode Option)";
+        return msgToClient;
     }
 
 }

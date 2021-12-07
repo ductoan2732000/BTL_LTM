@@ -21,5 +21,6 @@ public class ConfigCommon {
     // Sub and Unsub
     public static final String subTopic = "1";
     public static final String unsubTopic = "2";
-    public static final String rollback = "!";
+    public static final String showDataTopic = "3";
+    public static final String rollbackSubscriberOption = "!";
 }
