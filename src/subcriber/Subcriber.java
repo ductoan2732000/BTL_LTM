@@ -3,8 +3,7 @@
  * file subcriber
  */
 package subcriber;
-import org.json.simple.JSONObject;
-import subcriber.common.threadNonBlocking;
+import subcriber.common.ThreadNonBlocking;
 import subcriber.model.SubcriberUnique;
 import util.ConfigCommon;
 import util.ConfigMessage;
@@ -91,7 +90,7 @@ public class Subcriber {
                             // nếu chưa có socket nonblocking thì tạo mới và nghe data
                             if(!hasNonblockingSocet){
                                 try {
-                                    new Thread(new threadNonBlocking()).start();
+                                    new Thread(new ThreadNonBlocking()).start();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }

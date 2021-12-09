@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 
-public class threadNonBlocking implements Runnable {
+public class ThreadNonBlocking implements Runnable {
 
     @Override
     public void run() {
