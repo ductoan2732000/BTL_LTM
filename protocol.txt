@@ -46,9 +46,7 @@ Client : 1
 Broker : 1.Temperature 2.humidity 3.Hardware (!: Mode Option)
 Client : 1,2 // cả 3 id đều có trong id => đăng ký thành công
 Broker : 230 Subscribe to the topics successfully. (!: Mode Option)
-// first time = true
-Broker : {"data":"26 độ c","name":"sensor2","topicName":"Humidity","Time" : "10:10:60 18/01/2021"}
-Broker : {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
+
 
 Client : !
 Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time

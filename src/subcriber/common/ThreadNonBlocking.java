@@ -8,24 +8,27 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 
-public class ThreadNonBlocking implements Runnable {
-
+public class ThreadNonBlocking extends Thread {
+    SocketChannel client;
+    public ThreadNonBlocking(SocketChannel client){
+        this.client = client;
+    }
     @Override
     public void run() {
-        try {
-            SocketChannel client = SocketChannel.open(new InetSocketAddress("localhost", 8089));
-            while (true){
-                ByteBuffer buffer = ByteBuffer.allocate(1024);
-                client.read(buffer);
-                String data = new String(buffer.array()).trim();
-                if(Subcriber.isShow){
-                    System.out.println(data);
-                }
-                buffer.clear();
+        while (true){
+            ByteBuffer buffer = ByteBuffer.allocate(1024);
+            try {
+                this.client.read(buffer);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            String data = new String(buffer.array()).trim();
+            if(Subcriber.isShow){
+                System.out.println(data);
+            }
+            buffer.clear();
         }
+
     }
 
 }

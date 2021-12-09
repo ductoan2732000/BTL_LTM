@@ -4,12 +4,21 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import subcriber.Subcriber;
 import util.ConfigCommon;
 import util.ConfigMessage;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.text.*;
 import java.net.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 /*
 * Socket nonblocking
 * */
@@ -65,6 +74,7 @@ class Instance{
 
 public class Broker
 {
+    private static Selector selector = null;
     private ServerSocket serverSocket= null;
     private DataInputStream dataInputStream = null;
     private DataOutputStream dataOutputStream = null;
@@ -88,9 +98,42 @@ public class Broker
 
                 // Invoking the start() method
                 t.start();
+
+
+
+
+
+
+
+
+
+
+
+                selector = Selector.open();
+                ServerSocketChannel socket = ServerSocketChannel.open();
+                ServerSocket serverSocketNon = socket.socket();
+                serverSocketNon.bind(new InetSocketAddress("localhost", 8089));
+                socket.configureBlocking(false);
+                int ops = socket.validOps();
+                socket.register(selector, ops, null);
+
+
+                selector.select();
+                Set<SelectionKey> selectedKeys = selector.selectedKeys();
+                Iterator<SelectionKey> i = selectedKeys.iterator();
+
+                System.out.println("Connection Accepted...");
+
+                // Accept the connection and set non-blocking mode
+                SocketChannel client = socket.accept();
+                client.configureBlocking(false);
+                // Register that client is reading this channel
+                client.register(selector, SelectionKey.OP_WRITE);
+                Thread n = new CreateServerNonBlocking(client);
+                n.start();
             }
         }
-        catch (IOException ioe)
+        catch (IOException  ioe)
         {
             System.out.println(ioe);
         }
@@ -106,6 +149,8 @@ public class Broker
 // ClientHandler classSocket
 class ClientHandler extends Thread
 {
+    private boolean x = true;
+    public Boolean isCreateNonBlocking = false;
     DateFormat fordate        = new SimpleDateFormat("yyyy/MM/dd");
     DateFormat fortime        = new SimpleDateFormat("hh:mm:ss");
     final DataInputStream dataInputStream;
@@ -185,9 +230,9 @@ class ClientHandler extends Thread
             e.printStackTrace();
         }
         String[] subscribedArray = new String[topicArray.size()];
-
         while (!msgFromClient.equals(ConfigMessage.quit))
         {
+            x = true;
             try {
                 // Chỗ này có vấn đề rồi
                 // receive the answer from client
@@ -290,8 +335,11 @@ class ClientHandler extends Thread
                     }
 
                     if(!isErrorNumber) {
+                        // nếu đăng ký thành công thì gán biến boolen để bên dưới ko phải writeUTF nữa
                         msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
                         isSubscribed = true;
+
+
                     }
 
                     isSub = false;
@@ -501,20 +549,23 @@ class ClientHandler extends Thread
     }
 
     public String showSubscribingToData(String msgToClient, JSONArray topicArray, String[] subscribedArray){
-        for(int index = 0; index < topicArray.size(); index ++ ){
-            JSONObject obj = (JSONObject) topicArray.get(index);
+//        for(int index = 0; index < topicArray.size(); index ++ ){
+//            JSONObject obj = (JSONObject) topicArray.get(index);
+//
+//            if(obj.get("topicName").toString().equals(subscribedArray[index])){
+//                msgToClient += "\n" + obj;
+//            }
+//        }
+//
+//        if(msgToClient.isEmpty()) {
+//            msgToClient += "420 There are no registered topics yet";
+//        }
+//
+//        msgToClient += "\n(!: Mode Option)";
+//        return msgToClient;
 
-            if(obj.get("topicName").toString().equals(subscribedArray[index])){
-                msgToClient += "\n" + obj;
-            }
-        }
-
-        if(msgToClient.isEmpty()) {
-            msgToClient += "420 There are no registered topics yet";
-        }
-
-        msgToClient += "\n(!: Mode Option)";
-        return msgToClient;
+        return "230 Subscribe sdssdsd";
     }
+
 
 }
