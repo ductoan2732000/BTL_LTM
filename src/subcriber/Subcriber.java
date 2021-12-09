@@ -54,7 +54,7 @@ public class Subcriber {
                     output.writeUTF(string_to_server);
                     System.out.println(ConfigMessage.msgCacheClient2 + string_to_server);
                     string_from_server = in.readUTF();
-                    if(!string_from_server.contains(ConfigCommon.helloName.toString()) ){ // Đoạn này có vấn đề
+                    if(!string_from_server.contains(ConfigCommon.helloName.toString()) ){
                         System.out.println(ConfigMessage.requestTimeout);
                         System.exit(-1);
                     }

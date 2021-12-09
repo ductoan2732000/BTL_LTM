@@ -10,6 +10,16 @@ import util.ConfigMessage;
 import java.io.*;
 import java.text.*;
 import java.net.*;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.Iterator;
+import java.util.Set;
 /*
 * Socket nonblocking
 * */
@@ -70,11 +80,29 @@ public class Broker
     private DataOutputStream dataOutputStream = null;
     private Socket socket = null;
 
-    public Broker(int port) {
+    private static Selector selector = null;
+
+    public Broker(int port, int portNonblocking) {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
             System.out.println("Server start");
             System.out.println("Waiting a connection ...");
+            //
+
+            selector = Selector.open();
+            ServerSocketChannel nonSocket = ServerSocketChannel.open();
+            ServerSocket serverNonSocket = nonSocket.socket();
+            serverNonSocket.bind(new InetSocketAddress("localhost", portNonblocking));
+            nonSocket.configureBlocking(false);
+            int ops = nonSocket.validOps();
+            nonSocket.register(selector, ops, null);
+
+
+            selector.select();
+            Set<SelectionKey> selectedKeys = selector.selectedKeys();
+            Iterator<SelectionKey> i = selectedKeys.iterator();
+
+
             while(true) {
                 socket = serverSocket.accept();
                 System.out.println("A new client is connected : " + socket);
@@ -84,7 +112,7 @@ public class Broker
                 dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
                 // create a new thread object
-                Thread t = new ClientHandler(socket, dataInputStream, dataOutputStream);
+                Thread t = new ClientHandler(socket, dataInputStream, dataOutputStream, nonSocket);
 
                 // Invoking the start() method
                 t.start();
@@ -99,7 +127,7 @@ public class Broker
     public static void main(String[] args) throws IOException
     {
         // server is listening on port 5056
-        Broker server = new Broker(ConfigCommon.port);
+        Broker server = new Broker(ConfigCommon.port, 8089);
     }
 }
 
@@ -111,13 +139,16 @@ class ClientHandler extends Thread
     final DataInputStream dataInputStream;
     final DataOutputStream dataOutputStream;
     final Socket socket;
+    private ServerSocketChannel nonSocket;
+    private static Selector selector = null;
 
     // Constructor
-    public ClientHandler(Socket socket, DataInputStream dataInputStream, DataOutputStream dataOutputStream)
+    public ClientHandler(Socket socket, DataInputStream dataInputStream, DataOutputStream dataOutputStream, ServerSocketChannel nonSocket)
     {
         this.socket = socket;
         this.dataInputStream = dataInputStream;
         this.dataOutputStream = dataOutputStream;
+        this.nonSocket = nonSocket;
     }
     /// xác thực publish, subscriber
     public String processData(String msgFromClient){
@@ -258,7 +289,8 @@ class ClientHandler extends Thread
                             isSubscriberOption = false;
                             isUnsub = false;
                             isSub = false;
-                            msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+//                            msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+                            showSubscribingToData(msgToClient, topicArray, subscribedArray);
                             break;
                         default :
                             isUnsub = false;
@@ -290,7 +322,9 @@ class ClientHandler extends Thread
                     }
 
                     if(!isErrorNumber) {
-                        msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+//                        msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+                        isSub = false;
+                        showSubscribingToData(msgToClient, topicArray, subscribedArray);
                         isSubscribed = true;
                     }
 
@@ -314,7 +348,9 @@ class ClientHandler extends Thread
                         }
                     }
                     if(!isErrorNumber) {
-                        msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+//                        msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+                        isUnsub = false;
+                        showSubscribingToData(msgToClient, topicArray, subscribedArray);
                     }
 
                     // Nếu mảng mà là null hết thì isSubscribed = false
@@ -393,6 +429,8 @@ class ClientHandler extends Thread
                     msgToClient = "";
                 }
             } catch (IOException | ParseException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
@@ -500,7 +538,7 @@ class ClientHandler extends Thread
         return null;
     }
 
-    public String showSubscribingToData(String msgToClient, JSONArray topicArray, String[] subscribedArray){
+    public void showSubscribingToData(String msgToClient, JSONArray topicArray, String[] subscribedArray) throws IOException, InterruptedException {
         for(int index = 0; index < topicArray.size(); index ++ ){
             JSONObject obj = (JSONObject) topicArray.get(index);
 
@@ -514,7 +552,36 @@ class ClientHandler extends Thread
         }
 
         msgToClient += "\n(!: Mode Option)";
-        return msgToClient;
+
+        handleAccept(nonSocket, msgToClient);
+
+//        return msgToClient;
     }
 
+    private static void handleAccept(ServerSocketChannel mySocket, String msgToClient) throws IOException, InterruptedException {
+
+        System.out.println("Connection Accepted...");
+
+        // Accept the connection and set non-blocking mode
+        SocketChannel client = mySocket.accept();
+        client.configureBlocking(false);
+        int ops = mySocket.validOps();
+        // Register that client is reading this channel
+        client.register(selector, SelectionKey.OP_WRITE);
+        while (true){
+            Thread.sleep(3000);
+            handleWrite(client, msgToClient);
+        }
+
+
+    }
+
+    private static void handleWrite(SocketChannel client, String msgToClient) throws IOException {
+        System.out.println("Writing...");
+
+        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        buffer.put(msgToClient.getBytes());
+        buffer.flip();
+        client.write(buffer);
+    }
 }
