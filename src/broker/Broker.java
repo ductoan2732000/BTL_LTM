@@ -89,18 +89,7 @@ public class Broker
             System.out.println("Waiting a connection ...");
             //
 
-            selector = Selector.open();
-            ServerSocketChannel nonSocket = ServerSocketChannel.open();
-            ServerSocket serverNonSocket = nonSocket.socket();
-            serverNonSocket.bind(new InetSocketAddress("localhost", portNonblocking));
-            nonSocket.configureBlocking(false);
-            int ops = nonSocket.validOps();
-            nonSocket.register(selector, ops, null);
 
-
-            selector.select();
-            Set<SelectionKey> selectedKeys = selector.selectedKeys();
-            Iterator<SelectionKey> i = selectedKeys.iterator();
 
 
             while(true) {
@@ -112,7 +101,7 @@ public class Broker
                 dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
                 // create a new thread object
-                Thread t = new ClientHandler(socket, dataInputStream, dataOutputStream, nonSocket);
+                Thread t = new ClientHandler(socket, dataInputStream, dataOutputStream);
 
                 // Invoking the start() method
                 t.start();
@@ -139,16 +128,14 @@ class ClientHandler extends Thread
     final DataInputStream dataInputStream;
     final DataOutputStream dataOutputStream;
     final Socket socket;
-    private ServerSocketChannel nonSocket;
     private static Selector selector = null;
 
     // Constructor
-    public ClientHandler(Socket socket, DataInputStream dataInputStream, DataOutputStream dataOutputStream, ServerSocketChannel nonSocket)
+    public ClientHandler(Socket socket, DataInputStream dataInputStream, DataOutputStream dataOutputStream)
     {
         this.socket = socket;
         this.dataInputStream = dataInputStream;
         this.dataOutputStream = dataOutputStream;
-        this.nonSocket = nonSocket;
     }
     /// xác thực publish, subscriber
     public String processData(String msgFromClient){
@@ -539,21 +526,35 @@ class ClientHandler extends Thread
     }
 
     public void showSubscribingToData(String msgToClient, JSONArray topicArray, String[] subscribedArray) throws IOException, InterruptedException {
-        for(int index = 0; index < topicArray.size(); index ++ ){
-            JSONObject obj = (JSONObject) topicArray.get(index);
+        selector = Selector.open();
+        ServerSocketChannel nonSocket = ServerSocketChannel.open();
+        ServerSocket serverNonSocket = nonSocket.socket();
+        serverNonSocket.bind(new InetSocketAddress("localhost", 8089));
+        nonSocket.configureBlocking(false);
+        int ops = nonSocket.validOps();
+        nonSocket.register(selector, ops, null);
 
-            if(obj.get("topicName").toString().equals(subscribedArray[index])){
-                msgToClient += "\n" + obj;
-            }
-        }
 
-        if(msgToClient.isEmpty()) {
-            msgToClient += "420 There are no registered topics yet";
-        }
+        selector.select();
+        Set<SelectionKey> selectedKeys = selector.selectedKeys();
+        Iterator<SelectionKey> i = selectedKeys.iterator();
 
-        msgToClient += "\n(!: Mode Option)";
+        handleAccept(nonSocket, "msgToClient");
+//        for(int index = 0; index < topicArray.size(); index ++ ){
+//            JSONObject obj = (JSONObject) topicArray.get(index);
+//
+//            if(obj.get("topicName").toString().equals(subscribedArray[index])){
+//                msgToClient += "\n" + obj;
+//            }
+//        }
+//
+//        if(msgToClient.isEmpty()) {
+//            msgToClient += "420 There are no registered topics yet";
+//        }
 
-        handleAccept(nonSocket, msgToClient);
+//        msgToClient += "\n(!: Mode Option)";
+
+
 
 //        return msgToClient;
     }
@@ -585,3 +586,10 @@ class ClientHandler extends Thread
         client.write(buffer);
     }
 }
+
+
+/**
+ * 1. khi bên tôi bấm 3 lần đầu tiên thì khởi tạo và chờ bên tôi accept
+ * 2. sau khi khởi tạo xong thì ghép dữ liệu data vào và gửi sang bên tôi
+ *
+ */
