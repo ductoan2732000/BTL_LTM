@@ -1,5 +1,6 @@
 package broker;
 
+import broker.cache.CacheServer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -16,6 +17,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.text.*;
 import java.net.*;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -79,12 +81,15 @@ public class Broker
     private DataInputStream dataInputStream = null;
     private DataOutputStream dataOutputStream = null;
     private Socket socket = null;
-
+    private static Socket socketData = null;
     public Broker(int port) {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
+            ServerSocket serverSocketData = new ServerSocket(8089);
             System.out.println("Server start");
             System.out.println("Waiting a connection ...");
+
+
             while(true) {
                 socket = serverSocket.accept();
                 System.out.println("A new client is connected : " + socket);
@@ -93,8 +98,9 @@ public class Broker
                 dataInputStream = new DataInputStream(socket.getInputStream());
                 dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
+
                 // create a new thread object
-                Thread t = new ClientHandler(socket, dataInputStream, dataOutputStream);
+                Thread t = new ClientHandler(socket,socketData, serverSocketData, dataInputStream, dataOutputStream);
 
                 // Invoking the start() method
                 t.start();
@@ -109,28 +115,28 @@ public class Broker
 
 
 
-                selector = Selector.open();
-                ServerSocketChannel socket = ServerSocketChannel.open();
-                ServerSocket serverSocketNon = socket.socket();
-                serverSocketNon.bind(new InetSocketAddress("localhost", 8089));
-                socket.configureBlocking(false);
-                int ops = socket.validOps();
-                socket.register(selector, ops, null);
-
-
-                selector.select();
-                Set<SelectionKey> selectedKeys = selector.selectedKeys();
-                Iterator<SelectionKey> i = selectedKeys.iterator();
-
-                System.out.println("Connection Accepted...");
-
-                // Accept the connection and set non-blocking mode
-                SocketChannel client = socket.accept();
-                client.configureBlocking(false);
-                // Register that client is reading this channel
-                client.register(selector, SelectionKey.OP_WRITE);
-                Thread n = new CreateServerNonBlocking(client);
-                n.start();
+//                selector = Selector.open();
+//                ServerSocketChannel socket = ServerSocketChannel.open();
+//                ServerSocket serverSocketNon = socket.socket();
+//                serverSocketNon.bind(new InetSocketAddress("localhost", 8089));
+//                socket.configureBlocking(false);
+//                int ops = socket.validOps();
+//                socket.register(selector, ops, null);
+//
+//
+//                selector.select();
+//                Set<SelectionKey> selectedKeys = selector.selectedKeys();
+//                Iterator<SelectionKey> i = selectedKeys.iterator();
+//
+//                System.out.println("Connection Accepted...");
+//
+//                // Accept the connection and set non-blocking mode
+//                SocketChannel client = socket.accept();
+//                client.configureBlocking(false);
+//                // Register that client is reading this channel
+//                client.register(selector, SelectionKey.OP_WRITE);
+//                Thread n = new CreateServerNonBlocking(client);
+//                n.start();
             }
         }
         catch (IOException  ioe)
@@ -156,13 +162,17 @@ class ClientHandler extends Thread
     final DataInputStream dataInputStream;
     final DataOutputStream dataOutputStream;
     final Socket socket;
-
+    Socket socketData;
+    final ServerSocket serverSocketData;
     // Constructor
-    public ClientHandler(Socket socket, DataInputStream dataInputStream, DataOutputStream dataOutputStream)
+    public ClientHandler(Socket socket, Socket socketData, ServerSocket serverSocketData, DataInputStream dataInputStream, DataOutputStream dataOutputStream)
     {
         this.socket = socket;
         this.dataInputStream = dataInputStream;
         this.dataOutputStream = dataOutputStream;
+        this.socketData = socketData;
+        this.serverSocketData = serverSocketData;
+
     }
     /// xác thực publish, subscriber
     public String processData(String msgFromClient){
@@ -331,6 +341,7 @@ class ClientHandler extends Thread
                         } else {
                             JSONObject obj = (JSONObject) topicArray.get(number - 1);
                             subscribedArray[number - 1] = (String) obj.get("topicName");
+
                         }
                     }
 
@@ -345,6 +356,9 @@ class ClientHandler extends Thread
                     isSub = false;
                     dataOutputStream.writeUTF(msgToClient);
                     msgToClient = "";
+
+                    List<String> temp = Arrays.asList(subscribedArray);
+                    CacheServer.cacheArray.put(instance.id, temp);
                 }
                 else if(isSubscriber && isUnsub) { // Khi bam vao option va la unsub
                     String[] dataSub = Util.convertStringToArray(msgFromClient);
@@ -388,6 +402,9 @@ class ClientHandler extends Thread
                     isUnsub = false;
                     dataOutputStream.writeUTF(msgToClient);
                     msgToClient = "";
+
+                    List<String> temp = Arrays.asList(subscribedArray);
+                    CacheServer.cacheArray.put(instance.id, temp);
                 }
                 else if(isSubscriber && isRole) {
                     dataOutputStream.writeUTF(ConfigMessage.msgInvalidDataPub + " (!: Mode Option)");
@@ -426,6 +443,15 @@ class ClientHandler extends Thread
                                     isSubscriber = true;
                                     isSubscriberOption = true;
                                     // Hiện tại đang chỉ vào đây 1 lần chào hỏi duy nhất. Có thể bỏ số 3 đi
+                                    socketData = serverSocketData.accept();
+                                    DataInputStream dataInputStreamData = new DataInputStream(socketData.getInputStream());
+                                    DataOutputStream dataOutputStreamData = new DataOutputStream(socketData.getOutputStream());
+
+                                    // create a new thread object
+                                    Thread n = new CreateServerNonBlocking(socketData, serverSocketData, dataInputStreamData, dataOutputStreamData);
+
+                                    // Invoking the start() method
+                                    n.start();
                                     msgToClient = ConfigMessage.helloName + instance.name + "\n 1. Subscribe. 2. Unsubscribe. 3. Show data subscribe last time";
 
                                     WriteSubscriberJsonFile(data);

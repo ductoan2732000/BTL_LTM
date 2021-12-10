@@ -33,12 +33,12 @@ public class Subcriber {
             // todo
             Thread.sleep(4000);
 
-            SocketChannel clientNon = SocketChannel.open(new InetSocketAddress("localhost", 8089));
-            try {
-                new Thread(new ThreadNonBlocking(clientNon)).start();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+//            SocketChannel clientNon = SocketChannel.open(new InetSocketAddress("localhost", 8089));
+//            try {
+//                new Thread(new ThreadNonBlocking(clientNon)).start();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
 
             if(helo == false){
                 // kết nối xong thì chào hỏi ngay
@@ -64,6 +64,34 @@ public class Subcriber {
                 if(!string_to_server.equals("")){
                     output.writeUTF(string_to_server);
                     System.out.println(ConfigMessage.msgCacheClient2 + string_to_server);
+
+
+
+
+
+
+
+
+
+
+
+
+                    Thread.sleep(3000);
+                    Socket clientSocketData = new Socket(ConfigCommon.host, 8089);
+
+                    DataOutputStream outputData = new DataOutputStream(clientSocketData.getOutputStream());
+                    DataInputStream inData = new DataInputStream(new BufferedInputStream(clientSocketData.getInputStream()));
+
+                    new Thread(new ThreadNonBlocking(clientSocketData, outputData, inData)).start();
+
+
+
+
+
+
+
+
+
                     string_from_server = in.readUTF();
                     if(!string_from_server.contains(ConfigCommon.helloName.toString()) ){ // Đoạn này có vấn đề
                         System.out.println(ConfigMessage.requestTimeout);

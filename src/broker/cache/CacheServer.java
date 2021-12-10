@@ -16,3 +16,12 @@ public class CacheServer {
      */
     public static Hashtable<String, List<String>> cacheArray = new Hashtable<String, List<String>>();
 }
+
+
+/**
+ * todo :
+ * 1. thêm id cho topic detail
+ * 2. mảng đange ký của toản sẽ lưu theo id chứ ko lưu theo theo topic name
+ * 3. bỏ array đi => List<String>()
+ * 4. Xử lý hàm private static void handleWrite => đang chưa lấy được data của trọng
+ */

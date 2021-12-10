@@ -1,8 +1,13 @@
 package broker;
 
+import broker.cache.CacheServer;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -14,35 +19,38 @@ import java.util.Set;
 
 public class CreateServerNonBlocking extends Thread{
 
-    SocketChannel nonServer;
-    // laays mangr đã đăng ký của client từ biến global ra để gửi data
 
-    public CreateServerNonBlocking(SocketChannel nonServer ) {
-        this.nonServer = nonServer;
+    private Socket socketData;
+    private ServerSocket serverSocketData;
+    private DataInputStream dataInputStreamData;
+    private DataOutputStream dataOutputStreamData;
+
+    public CreateServerNonBlocking(Socket socketData, ServerSocket serverSocketData, DataInputStream dataInputStreamData, DataOutputStream dataOutputStreamData) {
+        this.socketData = socketData;
+        this.serverSocketData = serverSocketData;
+        this.dataInputStreamData = dataInputStreamData;
+        this.dataOutputStreamData = dataOutputStreamData;
     }
+
     @Override
     public void run()
     {
         try {
-            while (true){
-                // khoong check điều kiện là true nữa mà check điều kiện bên trọng có dữ liệu đẩy sang không, nếu có thì mới write sang bên client
-                Thread.sleep(5000);
-                handleWrite(this.nonServer);
-            }
-
+            handleWrite();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
 
-    private static void handleWrite(SocketChannel client) throws IOException {
-        System.out.println("Writing...");
+    private void handleWrite() throws IOException, InterruptedException {
+        while (true){
+            Thread.sleep(3000);
+            System.out.println("Writing");
+            this.dataOutputStreamData.writeUTF("msgToClient");
+        }
 
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
-        buffer.put("I like non-blocking servers".getBytes());
-        buffer.flip();
-        client.write(buffer);
+
     }
 }
 

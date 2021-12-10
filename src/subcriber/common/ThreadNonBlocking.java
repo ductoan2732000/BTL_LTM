@@ -2,31 +2,37 @@ package subcriber.common;
 
 import subcriber.Subcriber;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 
 public class ThreadNonBlocking extends Thread {
-    SocketChannel client;
-    public ThreadNonBlocking(SocketChannel client){
-        this.client = client;
+    Socket clientSocketData;
+    DataOutputStream outputData;
+    DataInputStream inData;
+
+    public ThreadNonBlocking(Socket clientSocketData, DataOutputStream outputData, DataInputStream inData) {
+        this.clientSocketData = clientSocketData;
+        this.outputData = outputData;
+        this.inData = inData;
     }
+
     @Override
     public void run() {
-        while (true){
-            ByteBuffer buffer = ByteBuffer.allocate(1024);
+        while (Subcriber.isShow){
             try {
-                this.client.read(buffer);
+
+                String cccccc = inData.readUTF();
+                System.out.println((cccccc));
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            String data = new String(buffer.array()).trim();
-            if(Subcriber.isShow){
-                System.out.println(data);
-            }
-            buffer.clear();
         }
 
     }
