@@ -3,16 +3,13 @@
  * file subcriber
  */
 package subcriber;
-import subcriber.common.ThreadNonBlocking;
+import subcriber.common.SocketGetData;
 import subcriber.model.SubcriberUnique;
 import util.ConfigCommon;
 import util.ConfigMessage;
 
 import java.io.*;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import java.util.Scanner;
 public class Subcriber {
     public static Boolean isShow = false;
@@ -82,7 +79,7 @@ public class Subcriber {
                     DataOutputStream outputData = new DataOutputStream(clientSocketData.getOutputStream());
                     DataInputStream inData = new DataInputStream(new BufferedInputStream(clientSocketData.getInputStream()));
 
-                    new Thread(new ThreadNonBlocking(clientSocketData, outputData, inData)).start();
+                    new Thread(new SocketGetData(clientSocketData, outputData, inData)).start();
 
 
 

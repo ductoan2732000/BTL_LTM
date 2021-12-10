@@ -1,5 +1,6 @@
 package subcriber.common;
 
+import com.sun.net.httpserver.Authenticator;
 import subcriber.Subcriber;
 
 import java.io.DataInputStream;
@@ -11,12 +12,12 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 
-public class ThreadNonBlocking extends Thread {
+public class SocketGetData extends Thread {
     Socket clientSocketData;
     DataOutputStream outputData;
     DataInputStream inData;
 
-    public ThreadNonBlocking(Socket clientSocketData, DataOutputStream outputData, DataInputStream inData) {
+    public SocketGetData(Socket clientSocketData, DataOutputStream outputData, DataInputStream inData) {
         this.clientSocketData = clientSocketData;
         this.outputData = outputData;
         this.inData = inData;
@@ -24,12 +25,12 @@ public class ThreadNonBlocking extends Thread {
 
     @Override
     public void run() {
-        while (Subcriber.isShow){
+        while (true){
             try {
-
-                String cccccc = inData.readUTF();
-                System.out.println((cccccc));
-
+                String data = inData.readUTF();
+                if(Subcriber.isShow){
+                    System.out.println((data));
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
