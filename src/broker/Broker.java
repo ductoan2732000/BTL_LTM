@@ -5,30 +5,19 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import subcriber.Subcriber;
 import util.ConfigCommon;
 import util.ConfigMessage;
 
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 import java.text.*;
 import java.net.*;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-/*
-* Socket nonblocking
-* */
 
 /*
 * Phân biệt các role của client
 * */
-
 enum  Identified {
     Subscriber(ConfigCommon.roleSub),
     Publisher(ConfigCommon.rolePub);
@@ -61,10 +50,8 @@ class Instance{
     public  static Instance CreateInstance(String data) throws ParseException {
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(data);
-        /// tạm fix tĩnh value
         Instance instance = new Instance();
         instance.id = json.get("id").toString();
-        instance.topic = json.get("topic").toString();
         instance.name = json.get("name").toString();
         return  instance;
     }
@@ -172,7 +159,6 @@ class ClientHandler extends Thread
         this.dataOutputStream = dataOutputStream;
         this.socketData = socketData;
         this.serverSocketData = serverSocketData;
-
     }
     /// xác thực publish, subscriber
     public String processData(String msgFromClient){
@@ -234,12 +220,12 @@ class ClientHandler extends Thread
         Instance instance = null;
         JSONArray topicArray = null;
 
+
         try {
-            topicArray = ReadTopicJsonFile();
+            topicArray = Util.ReadTopicJsonFile();
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        String[] subscribedArray = new String[topicArray.size()];
         while (!msgFromClient.equals(ConfigMessage.quit))
         {
             x = true;
@@ -276,8 +262,7 @@ class ClientHandler extends Thread
                             if (isSubscribed){
                                 for(int index = 0; index < topicArray.size(); index ++ ){
                                     JSONObject obj = (JSONObject) topicArray.get(index);
-
-                                    if(!obj.get("topicName").toString().equals(subscribedArray[index])){
+                                    if(!CacheServer.cacheArray.get(instance.id).contains(obj.get("id"))){
                                         msgToClient += index + 1 + ". " + obj.get("topicName") + " ";
                                     }
                                 }
@@ -296,8 +281,7 @@ class ClientHandler extends Thread
                             if (isSubscribed){
                                 for(int index = 0; index < topicArray.size(); index ++ ){
                                     JSONObject obj = (JSONObject) topicArray.get(index);
-
-                                    if(obj.get("topicName").toString().equals(subscribedArray[index])){
+                                    if(CacheServer.cacheArray.get(instance.id).contains(obj.get("id"))){
                                         msgToClient += index + 1 + ". " + obj.get("topicName") + " ";
                                     }
                                 }
@@ -313,7 +297,7 @@ class ClientHandler extends Thread
                             isSubscriberOption = false;
                             isUnsub = false;
                             isSub = false;
-                            msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+                            msgToClient = showSubscribingToData(msgToClient, topicArray);
                             break;
                         default :
                             isUnsub = false;
@@ -327,71 +311,65 @@ class ClientHandler extends Thread
                     msgToClient = "";
                 }
                 else if(isSubscriber && isSub) { // Khi bam vao option va la sub
-                    String[] dataSub = Util.convertStringToArray(msgFromClient); // Mảng lưu số của topic
+                    List<String> temp = Arrays.asList(Util.convertStringToArray(msgFromClient));
+
+                    CacheServer.cacheArray.put(instance.id, temp);
+
                     boolean isErrorNumber = false;
                     // Xử lý việc sub
-                    for (int i = 0; i < dataSub.length; i++){
-                        int number = Integer.parseInt(dataSub[i]);
+                    for (int i = 0; i < CacheServer.cacheArray.get(instance.id).size(); i++){
+                        int number = Integer.parseInt( CacheServer.cacheArray.get(instance.id).get(i));
                         if(number > topicArray.size()) {
                             // Xử lý việc nếu nhập không trong giới hạn của topic
                             msgToClient = "410 Topic not available. Please enter an existing topic!\n(!: Mode Option)";
                             isSubscriberOption = false;
                             isErrorNumber = true;
                             break;
-                        } else {
-                            JSONObject obj = (JSONObject) topicArray.get(number - 1);
-                            subscribedArray[number - 1] = (String) obj.get("topicName");
-
                         }
                     }
 
                     if(!isErrorNumber) {
                         // nếu đăng ký thành công thì gán biến boolen để bên dưới ko phải writeUTF nữa
-                        msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+                        msgToClient = showSubscribingToData(msgToClient, topicArray);
                         isSubscribed = true;
-
-
                     }
 
                     isSub = false;
                     dataOutputStream.writeUTF(msgToClient);
                     msgToClient = "";
 
-                    List<String> temp = Arrays.asList(subscribedArray);
-                    CacheServer.cacheArray.put(instance.id, temp);
                 }
                 else if(isSubscriber && isUnsub) { // Khi bam vao option va la unsub
-                    String[] dataSub = Util.convertStringToArray(msgFromClient);
+                    List<String> temp = Arrays.asList( Util.convertStringToArray(msgFromClient));
+                    CacheServer.cacheArray.get(instance.id).addAll(temp);
                     boolean isErrorNumber = false;
                     // Xử lý việc unsub
-                    for (int i = 0; i < dataSub.length; i++){
-                        int number = Integer.parseInt(dataSub[i]);
+                    for (int i = 0; i < CacheServer.cacheArray.get(instance.id).size(); i++){
+                        int number = Integer.parseInt(CacheServer.cacheArray.get(instance.id).get(i));
                         if(topicArray.size() < number ) {
                             msgToClient = "410 Topic not available. Please enter an existing topic!\n(!: Mode Option)";
                             isSubscriberOption = false;
                             isErrorNumber = true;
                             break;
-                        } else {
-                            subscribedArray[number - 1] = null;
                         }
                     }
                     if(!isErrorNumber) {
-                        msgToClient = showSubscribingToData(msgToClient, topicArray, subscribedArray);
+                        msgToClient = showSubscribingToData(msgToClient, topicArray);
                     }
 
                     // Nếu mảng mà là null hết thì isSubscribed = false
                     // Nếu mảng mà có 1 phần tử k null hết thì isSubscribed = true
                     int countNull = 0;
                     int countNotNull = 0;
-                    for (int i = 0; i < subscribedArray.length; i++){
-                        if(subscribedArray[i] != null ) {
+                    for (int i = 0; i < CacheServer.cacheArray.get(instance.id).size(); i++){
+                        if( CacheServer.cacheArray.get(instance.id).get(i) != null ) {
                             countNotNull++;
                         } else {
                             countNull++;
                         }
                     }
 
-                    if(countNull == subscribedArray.length){
+                    if(countNull == CacheServer.cacheArray.get(instance.id).size()){
                         isSubscribed = false;
                     }
 
@@ -402,9 +380,6 @@ class ClientHandler extends Thread
                     isUnsub = false;
                     dataOutputStream.writeUTF(msgToClient);
                     msgToClient = "";
-
-                    List<String> temp = Arrays.asList(subscribedArray);
-                    CacheServer.cacheArray.put(instance.id, temp);
                 }
                 else if(isSubscriber && isRole) {
                     dataOutputStream.writeUTF(ConfigMessage.msgInvalidDataPub + " (!: Mode Option)");
@@ -448,13 +423,13 @@ class ClientHandler extends Thread
                                     DataOutputStream dataOutputStreamData = new DataOutputStream(socketData.getOutputStream());
 
                                     // create a new thread object
-                                    Thread n = new CreateServerNonBlocking(socketData, serverSocketData, dataInputStreamData, dataOutputStreamData);
+                                    Thread n = new CreateServerNonBlocking(socketData, serverSocketData, dataInputStreamData, dataOutputStreamData, instance.id);
 
                                     // Invoking the start() method
-                                    n.start();
+                                     n.start();
                                     msgToClient = ConfigMessage.helloName + instance.name + "\n 1. Subscribe. 2. Unsubscribe. 3. Show data subscribe last time";
 
-                                    WriteSubscriberJsonFile(data);
+                                   Util.WriteSubscriberJsonFile(data);
                                 }
 //                            }
                             break;
@@ -488,7 +463,6 @@ class ClientHandler extends Thread
     }
 
     public void WriteFile(Instance  instance, String content) throws IOException {
-        // ???: Chưa hiểu
         String directoryName = "pnthuan/Location/" + instance.topic  + "/";
         String fileName = instance.name;
         File directory = new File(directoryName);
@@ -534,47 +508,7 @@ class ClientHandler extends Thread
         return  "Không có dữ liệu dkm";
     }
 
-    // Lưu mảng vào file json
-    public void WriteSubscriberJsonFile(String data) throws ParseException {
-        JSONParser dataParser = new JSONParser();
-        JSONArray subscribersArray = new JSONArray();
-//        JSONObject subscriberObject = new JSONObject();
-
-        JSONObject json = (JSONObject) dataParser.parse(data);
-
-        subscribersArray.add(json);
-//        subscriberObject.put("subscribers", subscribersArray);
-        try (FileWriter file = new FileWriter("src/broker/db/subscribers.json")) {
-//            file.write(subscriberObject.toJSONString());
-            file.write(subscribersArray.toString());
-            file.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public JSONArray ReadTopicJsonFile() throws ParseException {
-        JSONParser jsonParser = new JSONParser();
-
-        try (FileReader reader = new FileReader("src/broker/db/topic-detail.json"))
-        {
-            //Read JSON file
-            Object obj = jsonParser.parse(reader);
-
-            JSONArray employeeList = (JSONArray) obj;
-
-            return employeeList;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public String showSubscribingToData(String msgToClient, JSONArray topicArray, String[] subscribedArray){
+    public String showSubscribingToData(String msgToClient, JSONArray topicArray){
 //        for(int index = 0; index < topicArray.size(); index ++ ){
 //            JSONObject obj = (JSONObject) topicArray.get(index);
 //

@@ -83,9 +83,9 @@ Client : Hello Server
 Broker : 200 Hello Client
 Client : Hello Server
 Broker : 504 Request Timeout
-Client :  2 { “id”: “0002”, “topic”: “Temperature” , name : "sensor1"} 
+Client :  2 { “id”: “0002”, “topicName”: “Temperature” , name : "sensor1"}
 Broker : 210 Hello Publisher.
-Client : {  “Data”: “18 độ C”, "Time" : "10:10:60 18/01/2021"}
+Client : { “id”: “0002”, “topicName”: “Temperature” , name : "sensor1", “data”: “18 độ C”, "Time" : "10:10:60 18/01/2021" }
 Broker : 220 Success . Data save in location . "/location/Temperary/sensor1"
 Client : {  “abc”: “18 độ C”}
 Broker : 400 Invalid data.
