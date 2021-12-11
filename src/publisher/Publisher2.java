@@ -10,20 +10,20 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
-public class Publisher1
+public class Publisher2
 {
     // initialize socket and input output streams
     private Socket socket            = null;
     private static DataInputStream  input   = null;
     private static DataOutputStream out     = null;
     boolean isHello = false, isSendId = false;
-    private static final int role = 2, maxTemp = 50, minTemp = 20; //0: publisher, 1: subcriber
+    private static final int role = 2, minTemp = 0, maxTemp = 1; //0: publisher, 1: subcriber
     private static final  String id = "0002"; // id
-    private static final String topic = "template";
+    private static final String topic = "switch";
     private static String line = "";
     private static String recvBuf = "";
     // constructor to put ip address and port
-    public Publisher1(String address, int port)
+    public Publisher2(String address, int port)
     {
         // establish a connection
         try
@@ -64,12 +64,12 @@ public class Publisher1
 
                 // Neu chao hoi roi ma chua gui chi tiet client
                 else if(recvBuf.contains(ConfigCommon.requestSucceeded.toString())) {
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("id", id);
-                        jsonObject.put("topic", topic);
-                        jsonObject.put("name", "sensor1");
-                        line = role + " " + jsonObject;
-                        isSendId = true;
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("id", id);
+                    jsonObject.put("topic", topic);
+                    jsonObject.put("name", "sensor1");
+                    line = role + " " + jsonObject;
+                    isSendId = true;
                 }
 
                 // Neu da gui chi tiet client thi gui data
@@ -122,11 +122,11 @@ public class Publisher1
      * @return du lieu duoc sinh ra
      * @author: PVTRONG (27/11/2021)
      */
-    private static String getData() {
+    private static String getData() throws IOException {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("Temperature", (int) (Math.random() * (maxTemp - minTemp + 1) + minTemp));
+        jsonObject.put("Enable", (int) (Math.random() * (maxTemp - minTemp + 1) + minTemp));
         jsonObject.put("Time", formatter.format(date));
         System.out.println( jsonObject.toString());
         return jsonObject.toString();
@@ -135,6 +135,6 @@ public class Publisher1
 
     public static void main(String args[])
     {
-        Publisher1 client = new Publisher1("127.0.0.1", 5056);
+        Publisher2 client = new Publisher2("127.0.0.1", 5056);
     }
 }
