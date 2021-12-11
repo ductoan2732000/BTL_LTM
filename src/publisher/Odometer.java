@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
-public class Publisher1
+public class Odometer
 {
     // initialize socket and input output streams
     private Socket socket            = null;
@@ -18,12 +18,13 @@ public class Publisher1
     private static DataOutputStream out     = null;
     boolean isHello = false, isSendId = false;
     private static final int role = 2, maxTemp = 50, minTemp = 20; //0: publisher, 1: subcriber
-    private static final  String id = "0002"; // id
-    private static final String topic = "template";
+    private static final  String id = "0003"; // id
+    private static final  String name = "Odometer"; // id
+    private static final String topic = "Odometer";
     private static String line = "";
     private static String recvBuf = "";
     // constructor to put ip address and port
-    public Publisher1(String address, int port)
+    public Odometer(String address, int port)
     {
         // establish a connection
         try
@@ -64,12 +65,12 @@ public class Publisher1
 
                 // Neu chao hoi roi ma chua gui chi tiet client
                 else if(recvBuf.contains(ConfigCommon.requestSucceeded.toString())) {
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("id", id);
-                        jsonObject.put("topic", topic);
-                        jsonObject.put("name", "sensor1");
-                        line = role + " " + jsonObject;
-                        isSendId = true;
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("id", id);
+                    jsonObject.put("topic", topic);
+                    jsonObject.put("name", name);
+                    line = role + " " + jsonObject;
+                    isSendId = true;
                 }
 
                 // Neu da gui chi tiet client thi gui data
@@ -126,8 +127,11 @@ public class Publisher1
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("Temperature", (int) (Math.random() * (maxTemp - minTemp + 1) + minTemp));
+        jsonObject.put("Data", (int) (Math.random() * (maxTemp - minTemp + 1) + minTemp));
         jsonObject.put("Time", formatter.format(date));
+        jsonObject.put("id", id);
+        jsonObject.put("topicName", topic);
+        jsonObject.put("name", name);
         System.out.println( jsonObject.toString());
         return jsonObject.toString();
     }
@@ -135,6 +139,6 @@ public class Publisher1
 
     public static void main(String args[])
     {
-        Publisher1 client = new Publisher1("127.0.0.1", 5056);
+        Odometer client = new Odometer(ConfigCommon.host, ConfigCommon.port);
     }
 }
