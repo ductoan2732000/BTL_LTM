@@ -1,6 +1,7 @@
 package broker;
 
 import broker.cache.CacheServer;
+import broker.cache.CacheTopic;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -93,38 +94,6 @@ public class Broker
                 // Invoking the start() method
                 t.start();
 
-
-
-
-
-
-
-
-
-
-
-//                selector = Selector.open();
-//                ServerSocketChannel socket = ServerSocketChannel.open();
-//                ServerSocket serverSocketNon = socket.socket();
-//                serverSocketNon.bind(new InetSocketAddress("localhost", 8089));
-//                socket.configureBlocking(false);
-//                int ops = socket.validOps();
-//                socket.register(selector, ops, null);
-//
-//
-//                selector.select();
-//                Set<SelectionKey> selectedKeys = selector.selectedKeys();
-//                Iterator<SelectionKey> i = selectedKeys.iterator();
-//
-//                System.out.println("Connection Accepted...");
-//
-//                // Accept the connection and set non-blocking mode
-//                SocketChannel client = socket.accept();
-//                client.configureBlocking(false);
-//                // Register that client is reading this channel
-//                client.register(selector, SelectionKey.OP_WRITE);
-//                Thread n = new CreateServerNonBlocking(client);
-//                n.start();
             }
         }
         catch (IOException  ioe)
@@ -179,12 +148,23 @@ class ClientHandler extends Thread
         return msgToClient;
     }
 
-    public String processPublisher(String data) throws ParseException {
-        // xác thực
+    public boolean processPublisher(Instance instance, String data) throws ParseException {
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(data);
+        try {
 
-        Instance instance = Instance.CreateInstance(data);
-        System.out.println(instance.GetInfoInstance(instance));
-        return null;
+            String id = json.get("id").toString();
+            if(id == null || id.trim().equals("")){
+                return false;
+            }
+        }
+        catch (Exception ex){
+            System.out.println("Dữ liệu publisher gửi sang lỗi");
+            return false;
+        }
+        // xác thực
+        CacheTopic.arrayTopic.put(instance.id, data);
+        return false;
     }
 
     public  boolean AuthenSubscriber(String data, Instance instance) throws ParseException {
@@ -231,17 +211,19 @@ class ClientHandler extends Thread
         {
             x = true;
             try {
-                // Chỗ này có vấn đề rồi
-                // receive the answer from client
+
                 msgFromClient = "";
                 msgFromClient = dataInputStream.readUTF();
 
                 if(isPublisher){
-                    WriteFile(instance, msgFromClient);
-                    msgToClient = ConfigMessage.msgDataSucceededPub;
+                    //WriteFile(instance, msgFromClient);
+                    if(processPublisher(instance, msgFromClient)){
+                        msgToClient = ConfigMessage.msgDataSucceededPub;
+                    }else {
+                        msgToClient = ConfigMessage.msgInvalidDataPub;
+                    }
                     dataOutputStream.writeUTF(msgToClient);
-                    System.out.println(msgToClient);
-                    // send data to subscriber
+
                 }
                 else if(isSubscriber && msgFromClient.equals(ConfigCommon.rollbackSubscriberOption)){
                     isPublisher = false;

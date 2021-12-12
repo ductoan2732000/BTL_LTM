@@ -13,9 +13,6 @@ public class CacheServer {
      *     "1002": [1,2,3]
      * }
      *
-     * Todo:
-     *  - Khi mà subscriber đăng ký thì thì sẽ lưu id và mảng string id mà subscriber nhập lên
-     *  - Khi mà subscriber huỷ đăng ký thì thì sẽ lưu id và mảng string id mà subscriber nhập lên
      * cách get: cacheArray.get("1001");
      * cách add: cacheArray.put("1003", new List<String>);
      */
