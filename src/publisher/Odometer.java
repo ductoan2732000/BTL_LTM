@@ -127,8 +127,8 @@ public class Odometer
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("Data", (int) (Math.random() * (maxTemp - minTemp + 1) + minTemp));
-        jsonObject.put("Time", formatter.format(date));
+        jsonObject.put("data", (int) (Math.random() * (maxTemp - minTemp + 1) + minTemp));
+        jsonObject.put("time", formatter.format(date));
         jsonObject.put("id", id);
         jsonObject.put("topicName", topic);
         jsonObject.put("name", name);
