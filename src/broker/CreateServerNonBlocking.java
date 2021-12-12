@@ -1,6 +1,7 @@
 package broker;
 
 import broker.cache.CacheServer;
+import broker.cache.CacheTopic;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
@@ -10,6 +11,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 
 public class CreateServerNonBlocking extends Thread{
 
@@ -42,19 +44,22 @@ public class CreateServerNonBlocking extends Thread{
 
 
     private void handleWrite() throws IOException, InterruptedException, ParseException {
-        JSONArray topicList = Util.ReadTopicJsonFile();
         String msgToClient = "";
-        while (!topicList.isEmpty()){
+        while (CacheTopic.arrayTopic.size() > 0){
             Thread.sleep(3000);
-            for(int index = 0; index < topicList.size(); index++ ){
-                JSONObject obj = (JSONObject) topicList.get(index);
-                if(CacheServer.cacheArray.containsKey(this.id) &&CacheServer.cacheArray.get(this.id).contains(obj.get("id"))){
-                    msgToClient += "\n" + obj;
+            if(CacheServer.cacheArray.containsKey(this.id)){
+                List<String> topic = CacheServer.cacheArray.get(this.id);
+                for(int i =0;i < topic.size();i ++){
+                    if(CacheTopic.arrayTopic.containsKey(topic.get(i))){
+                        msgToClient += "\n" + CacheTopic.arrayTopic.get(topic.get(i));
+                    }
                 }
+                if(msgToClient != null )
+                    this.dataOutputStreamData.writeUTF(msgToClient);
+                msgToClient = "";
             }
-            this.dataOutputStreamData.writeUTF(msgToClient);
-            msgToClient = "";
         }
+
 
     }
 }
