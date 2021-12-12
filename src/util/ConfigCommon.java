@@ -23,4 +23,7 @@ public class ConfigCommon {
     public static final String unsubTopic = "2";
     public static final String showDataTopic = "3";
     public static final String rollbackSubscriberOption = "!";
+
+    // reset
+    public  static  final String resetConnection = "Connection reset";
 }

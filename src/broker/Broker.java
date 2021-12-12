@@ -168,7 +168,6 @@ class ClientHandler extends Thread
     }
 
 
-
     public String getProperty(String data, String id, String name) throws ParseException {
         try {
             if (CacheTopic.arrayTopic.containsKey(id)){
@@ -206,11 +205,10 @@ class ClientHandler extends Thread
                 try {
                     msgFromClient = dataInputStream.readUTF();
                 }catch (Exception ex){
-                    if(ex.getMessage().equals("Connection reset")){
+                    if(ex.getMessage().equals(ConfigCommon.resetConnection)){
                         msgFromClient = ConfigMessage.quit;
                     }
                 }
-
 
                 if(isPublisher){
                     if(msgFromClient.equals(ConfigMessage.quit)){
@@ -218,7 +216,6 @@ class ClientHandler extends Thread
                             CacheTopic.arrayTopic.remove(instance.id);
                         }
                     }
-                    //WriteFile(instance, msgFromClient);
                     if(processPublisher(instance, msgFromClient)){
                         msgToClient = ConfigMessage.msgDataSucceededPub;
                     }else {
@@ -242,8 +239,6 @@ class ClientHandler extends Thread
                                     // lấy
                                     String key = CacheTopic.arrayTopic.keySet().toArray()[index].toString();
                                     String value = CacheTopic.arrayTopic.get(key);
-                                    // lấy danh sách đăng ký => hiển thị nhữn tg tk không nằm trong đó
-                                    // [1, 2]
                                     if(!CacheServer.cacheArray.get(instance.id).contains(key)){
                                         msgToClient += key + ". " + getProperty(value,key, "topicName") + " ";
                                     }
@@ -356,10 +351,6 @@ class ClientHandler extends Thread
                         temp = data;
                     }
                     CacheServer.cacheArray.put(instance.id, temp);
-                    // 1 2
-                    // 1
-                    // output 2 :
-
                     boolean isErrorNumber = false;
 
                     for (int i = 0; i < CacheServer.cacheArray.get(instance.id).size(); i++){
@@ -429,8 +420,6 @@ class ClientHandler extends Thread
                             msgToClient = ConfigMessage.helloName + instance.name;
                             break;
                         case ConfigCommon.roleSub:
-//                            if(AuthenSubscriber(data, instance) || roleClient)
-//                            {
                                 if(!data.isEmpty()) {
                                     isPublisher = false;
                                     isSubscriber = true;
@@ -449,7 +438,6 @@ class ClientHandler extends Thread
 
                                    Util.WriteSubscriberJsonFile(data);
                                 }
-//                            }
                             break;
                         default:
                             msgToClient = processData(msgFromClient);
@@ -480,51 +468,7 @@ class ClientHandler extends Thread
         }
     }
 
-    public void WriteFile(Instance  instance, String content) throws IOException {
-        String directoryName = "pnthuan/Location/" + instance.topic  + "/";
-        String fileName = instance.name;
-        File directory = new File(directoryName);
-        if (!directory.exists()){
-            directory.mkdir();
-        }
-        File file = new File(directoryName + "/" + fileName);
-        if(!file.exists()){
-            file.createNewFile();
-        }
-
-        try{
-            FileWriter fw = new FileWriter(file.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(content);
-            bw.close();
-        }
-        catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-    public String  ReadFile(String path) throws FileNotFoundException {
-        File infile = new File(path);
-        FileInputStream fis = new FileInputStream(infile);
-        BufferedInputStream bis = new BufferedInputStream(fis);
-        try (FileReader fileReader = new FileReader(path)) {
-            int data = fileReader.read();
-            StringBuilder line = new StringBuilder();
-            while (data != -1) {
-                if (((char)data == '\n') || ((char)data == '\r')) {
-                    line.delete(0, line.length());
-                    data = fileReader.read();
-                    continue;
-                }
-                line.append((char)data);
-                data = fileReader.read();
-            }
-            return  line.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-
-        }
-        return  "Không có dữ liệu dkm";
-    }
+    
 
     public String showSubscribingToData(String msgToClient){
         return "230 Subscribe sdssdsd";
