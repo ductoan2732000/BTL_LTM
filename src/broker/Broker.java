@@ -164,7 +164,7 @@ class ClientHandler extends Thread
         }
         // xác thực
         CacheTopic.arrayTopic.put(instance.id, data);
-        return false;
+        return true;
     }
 
     public  boolean AuthenSubscriber(String data, Instance instance) throws ParseException {
@@ -184,6 +184,19 @@ class ClientHandler extends Thread
         }
         return false;
     }
+
+    public String getProperty(String data, String id, String name) throws ParseException {
+        try {
+            if (CacheTopic.arrayTopic.containsKey(id)){
+                JSONParser parser = new JSONParser();
+                JSONObject json = (JSONObject) parser.parse(data);
+                return json.get(name).toString();
+            }
+        }catch (Exception ex){
+        }
+        return "";
+    }
+
     @Override
     public void run()
     {
@@ -199,23 +212,28 @@ class ClientHandler extends Thread
         boolean isRole = false;
 
         Instance instance = null;
-        JSONArray topicArray = null;
 
-
-        try {
-            topicArray = Util.ReadTopicJsonFile();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
         while (!msgFromClient.equals(ConfigMessage.quit))
         {
             x = true;
             try {
 
                 msgFromClient = "";
-                msgFromClient = dataInputStream.readUTF();
+                try {
+                    msgFromClient = dataInputStream.readUTF();
+                }catch (Exception ex){
+                    if(ex.getMessage().equals("Connection reset")){
+                        msgFromClient = ConfigMessage.quit;
+                    }
+                }
+
 
                 if(isPublisher){
+                    if(msgFromClient.equals(ConfigMessage.quit)){
+                        if(CacheTopic.arrayTopic.containsKey(instance.id)){
+                            CacheTopic.arrayTopic.remove(instance.id);
+                        }
+                    }
                     //WriteFile(instance, msgFromClient);
                     if(processPublisher(instance, msgFromClient)){
                         msgToClient = ConfigMessage.msgDataSucceededPub;
@@ -236,16 +254,24 @@ class ClientHandler extends Thread
                     switch (msgFromClient){
                         case ConfigCommon.subTopic:
                             if (isSubscribed){
-                                for(int index = 0; index < topicArray.size(); index ++ ){
-                                    JSONObject obj = (JSONObject) topicArray.get(index);
-                                    if(!CacheServer.cacheArray.get(instance.id).contains(obj.get("id"))){
-                                        msgToClient += index + 1 + ". " + obj.get("topicName") + " ";
+                                for(int index = 0; index < CacheTopic.arrayTopic.size(); index ++ ){
+                                    // lấy
+                                    String key = CacheTopic.arrayTopic.keySet().toArray()[index].toString();
+                                    String value = CacheTopic.arrayTopic.get(key);
+                                    // lấy danh sách đăng ký => hiển thị nhữn tg tk không nằm trong đó
+                                    // [1, 2]
+                                    if(!CacheServer.cacheArray.get(instance.id).contains(key)){
+                                        msgToClient += key + ". " + getProperty(value,key, "topicName") + " ";
                                     }
                                 }
                             } else {
-                                for(int index = 0; index < topicArray.size(); index++) {
-                                    JSONObject obj = (JSONObject) topicArray.get(index);
-                                    msgToClient += index + 1 + ". " + obj.get("topicName") + " ";
+                                for(int index = 0; index < CacheTopic.arrayTopic.size(); index ++ ){
+                                    // lấy
+                                    String key = CacheTopic.arrayTopic.keySet().toArray()[index].toString();
+                                    String value = CacheTopic.arrayTopic.get(key);
+                                    // lấy danh sách đăng ký => hiển thị nhữn tg tk không nằm trong đó
+                                    msgToClient += key + ". " + getProperty(value,key, "topicName") + " ";
+
                                 }
                             }
                             msgToClient += "\n(!: Mode Option)";
@@ -255,10 +281,14 @@ class ClientHandler extends Thread
                             break;
                         case ConfigCommon.unsubTopic:
                             if (isSubscribed){
-                                for(int index = 0; index < topicArray.size(); index ++ ){
-                                    JSONObject obj = (JSONObject) topicArray.get(index);
-                                    if(CacheServer.cacheArray.get(instance.id).contains(obj.get("id"))){
-                                        msgToClient += index + 1 + ". " + obj.get("topicName") + " ";
+                                for(int index = 0; index < CacheTopic.arrayTopic.size(); index ++ ){
+                                    // lấy
+                                    String key = CacheTopic.arrayTopic.keySet().toArray()[index].toString();
+                                    String value = CacheTopic.arrayTopic.get(key);
+                                    // lấy danh sách đăng ký => hiển thị nhữn tg tk không nằm trong đó
+                                    // [1, 2]
+                                    if(CacheServer.cacheArray.get(instance.id).contains(key)){
+                                        msgToClient += key + ". " + getProperty(value,key, "topicName") + " ";
                                     }
                                 }
                                 isUnsub = true;
@@ -273,7 +303,7 @@ class ClientHandler extends Thread
                             isSubscriberOption = false;
                             isUnsub = false;
                             isSub = false;
-                            msgToClient = showSubscribingToData(msgToClient, topicArray);
+                            msgToClient = showSubscribingToData(msgToClient);
                             break;
                         default :
                             isUnsub = false;
@@ -304,8 +334,9 @@ class ClientHandler extends Thread
                     boolean isErrorNumber = false;
                     // Xử lý việc sub
                     for (int i = 0; i < CacheServer.cacheArray.get(instance.id).size(); i++){
-                        int number = Integer.parseInt( CacheServer.cacheArray.get(instance.id).get(i));
-                        if(number > topicArray.size()) {
+                        String idTopic = CacheServer.cacheArray.get(instance.id).get(i);
+                        // chứa 1 tk không nằm trong danh sách topic thì đẩy lỗi
+                        if(!CacheTopic.arrayTopic.containsKey(idTopic)) {
                             // Xử lý việc nếu nhập không trong giới hạn của topic
                             msgToClient = "410 Topic not available. Please enter an existing topic!\n(!: Mode Option)";
                             isSubscriberOption = false;
@@ -316,7 +347,7 @@ class ClientHandler extends Thread
 
                     if(!isErrorNumber) {
                         // nếu đăng ký thành công thì gán biến boolen để bên dưới ko phải writeUTF nữa
-                        msgToClient = showSubscribingToData(msgToClient, topicArray);
+                        msgToClient = showSubscribingToData(msgToClient);
                         isSubscribed = true;
                     }
 
@@ -346,10 +377,12 @@ class ClientHandler extends Thread
                     // output 2 :
 
                     boolean isErrorNumber = false;
-                    // Xử lý việc unsub
+
                     for (int i = 0; i < CacheServer.cacheArray.get(instance.id).size(); i++){
-                        int number = Integer.parseInt(CacheServer.cacheArray.get(instance.id).get(i));
-                        if(topicArray.size() < number ) {
+                        String idTopic = CacheServer.cacheArray.get(instance.id).get(i);
+                        // chứa 1 tk không nằm trong danh sách topic thì đẩy lỗi
+                        if(!CacheTopic.arrayTopic.containsKey(idTopic)) {
+                            // Xử lý việc nếu nhập không trong giới hạn của topic
                             msgToClient = "410 Topic not available. Please enter an existing topic!\n(!: Mode Option)";
                             isSubscriberOption = false;
                             isErrorNumber = true;
@@ -357,7 +390,7 @@ class ClientHandler extends Thread
                         }
                     }
                     if(!isErrorNumber) {
-                        msgToClient = showSubscribingToData(msgToClient, topicArray);
+                        msgToClient = showSubscribingToData(msgToClient);
                     }
 
                     // Nếu mảng mà là null hết thì isSubscribed = false
@@ -407,11 +440,9 @@ class ClientHandler extends Thread
 
                     switch (roleClient){
                         case ConfigCommon.rolePub:
-                            if(AuthenPublisher(data, instance)){
-                                isPublisher = true;
-                                isSubscriber = false;
-                                msgToClient = ConfigMessage.helloName + instance.name;
-                            }
+                            isPublisher = true;
+                            isSubscriber = false;
+                            msgToClient = ConfigMessage.helloName + instance.name;
                             break;
                         case ConfigCommon.roleSub:
 //                            if(AuthenSubscriber(data, instance) || roleClient)
@@ -511,22 +542,7 @@ class ClientHandler extends Thread
         return  "Không có dữ liệu dkm";
     }
 
-    public String showSubscribingToData(String msgToClient, JSONArray topicArray){
-//        for(int index = 0; index < topicArray.size(); index ++ ){
-//            JSONObject obj = (JSONObject) topicArray.get(index);
-//
-//            if(obj.get("topicName").toString().equals(subscribedArray[index])){
-//                msgToClient += "\n" + obj;
-//            }
-//        }
-//
-//        if(msgToClient.isEmpty()) {
-//            msgToClient += "420 There are no registered topics yet";
-//        }
-//
-//        msgToClient += "\n(!: Mode Option)";
-//        return msgToClient;
-
+    public String showSubscribingToData(String msgToClient){
         return "230 Subscribe sdssdsd";
     }
 
