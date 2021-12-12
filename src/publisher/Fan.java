@@ -12,13 +12,15 @@ import java.util.Scanner;
 
 public class Fan
 {
+    private static final int enable = 1;
+    private static final int disable = 0;
     // initialize socket and input output streams
     private Socket socket            = null;
     private static DataInputStream  input   = null;
     private static DataOutputStream out     = null;
     boolean isHello = false, isSendId = false;
-    private static final int role = 2, min= 0, max = 1; //0: publisher, 1: subcriber
-    private static final  String id = "0001"; // id
+    private static final int role = Integer.parseInt(ConfigCommon.rolePub), min= disable, max = enable; //0: publisher, 1: subcriber
+    private static final  String id = "1"; // id
     private static final  String name = "Fan"; // id
     private static final String topic = "Fan";
     private static String line = "";

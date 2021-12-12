@@ -12,13 +12,15 @@ import java.util.Scanner;
 
 public class Lamp
 {
+    private static final int enable = 1;
+    private static final int disable = 0;
     // initialize socket and input output streams
     private Socket socket            = null;
     private static DataInputStream  input   = null;
     private static DataOutputStream out     = null;
     boolean isHello = false, isSendId = false;
-    private static final int role = 2, minTemp = 0, maxTemp = 1; //0: publisher, 1: subcriber
-    private static final  String id = "0002"; // id
+    private static final int role = Integer.parseInt(ConfigCommon.rolePub), minTemp = disable, maxTemp = enable; //0: publisher, 1: subcriber
+    private static final  String id = "2"; // id
     private static final  String name = "Lamp"; // id
     private static final String topic = "Lamp";
     private static String line = "";

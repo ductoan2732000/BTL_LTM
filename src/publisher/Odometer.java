@@ -17,8 +17,8 @@ public class Odometer
     private static DataInputStream  input   = null;
     private static DataOutputStream out     = null;
     boolean isHello = false, isSendId = false;
-    private static final int role = 2, maxTemp = 50, minTemp = 20; //0: publisher, 1: subcriber
-    private static final  String id = "0003"; // id
+    private static final int role = Integer.parseInt(ConfigCommon.rolePub), maxTemp = 50, minTemp = 20; //0: publisher, 1: subcriber
+    private static final  String id = "3"; // id
     private static final  String name = "Odometer"; // id
     private static final String topic = "Odometer";
     private static String line = "";
