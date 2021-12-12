@@ -27,7 +27,8 @@ public class Util {
     }
 
     public static String[] convertStringToArray(String data) {
-        if(data.length() > 2){
+        if(data == null) return subTopics;
+        if(data.trim().length() > 2){
             subTopics = data.split(",");
             return subTopics;
         }

@@ -20,7 +20,7 @@ public class CacheServer {
      * cách add: cacheArray.put("1003", new List<String>);
      */
     public static Hashtable<String, List<String>> cacheArray = new Hashtable<String, List<String>>();
-//    public static List<String> idTopicArray = new ArrayList<String>();
+
 }
 
 

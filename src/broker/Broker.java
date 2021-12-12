@@ -12,6 +12,7 @@ import java.io.*;
 import java.nio.channels.Selector;
 import java.text.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -236,14 +237,7 @@ class ClientHandler extends Thread
                 msgFromClient = dataInputStream.readUTF();
 
                 if(isPublisher){
-                    // ???: Chưa hiểu
-                    //nhận dữ liệu
-                    // đẩy vào file
                     WriteFile(instance, msgFromClient);
-
-                    // ???: Chỗ location thì sẽ như thế nào
-                    // msgToClient = "200 Success. Data save in location . \"/location/Temperary/sensor1\"";
-
                     msgToClient = ConfigMessage.msgDataSucceededPub;
                     dataOutputStream.writeUTF(msgToClient);
                     System.out.println(msgToClient);
@@ -306,15 +300,25 @@ class ClientHandler extends Thread
                             msgToClient = "400 Invalid data.\n(!: Mode Option)"; // để tạm, tính sau
                             break;
                     }
-
                     dataOutputStream.writeUTF(msgToClient);
                     msgToClient = "";
                 }
                 else if(isSubscriber && isSub) { // Khi bam vao option va la sub
                     List<String> temp = Arrays.asList(Util.convertStringToArray(msgFromClient));
-
+                    if (CacheServer.cacheArray.containsKey(instance.id)){
+                        List<String> data = new ArrayList<>(CacheServer.cacheArray.get(instance.id)) ;
+                        if(data.size() == 0 ) data = temp;
+                        else {
+                            for(int i = 0;i< temp.size() ; i ++){
+                                if(!data.contains(temp.get(i))){
+                                    String a = temp.get(i);
+                                    data.add(a);
+                                }
+                            }
+                        }
+                        temp = data;
+                    }
                     CacheServer.cacheArray.put(instance.id, temp);
-
                     boolean isErrorNumber = false;
                     // Xử lý việc sub
                     for (int i = 0; i < CacheServer.cacheArray.get(instance.id).size(); i++){
@@ -340,8 +344,25 @@ class ClientHandler extends Thread
 
                 }
                 else if(isSubscriber && isUnsub) { // Khi bam vao option va la unsub
+
                     List<String> temp = Arrays.asList( Util.convertStringToArray(msgFromClient));
-                    CacheServer.cacheArray.get(instance.id).addAll(temp);
+                    if (CacheServer.cacheArray.containsKey(instance.id)){
+                        List<String> data = new ArrayList<>(CacheServer.cacheArray.get(instance.id)) ;
+                        if(data.size() == 0 ) data = null;
+                        else {
+                            for(int i = 0;i< temp.size() ; i ++){
+                                if(data.contains(temp.get(i))){
+                                    data.remove(temp.get(i));
+                                }
+                            }
+                        }
+                        temp = data;
+                    }
+                    CacheServer.cacheArray.put(instance.id, temp);
+                    // 1 2
+                    // 1
+                    // output 2 :
+
                     boolean isErrorNumber = false;
                     // Xử lý việc unsub
                     for (int i = 0; i < CacheServer.cacheArray.get(instance.id).size(); i++){

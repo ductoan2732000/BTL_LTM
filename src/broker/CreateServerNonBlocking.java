@@ -48,7 +48,7 @@ public class CreateServerNonBlocking extends Thread{
             Thread.sleep(3000);
             for(int index = 0; index < topicList.size(); index++ ){
                 JSONObject obj = (JSONObject) topicList.get(index);
-                if(CacheServer.cacheArray.get(this.id).contains(obj.get("id"))){
+                if(CacheServer.cacheArray.containsKey(this.id) &&CacheServer.cacheArray.get(this.id).contains(obj.get("id"))){
                     msgToClient += "\n" + obj;
                 }
             }
