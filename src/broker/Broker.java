@@ -410,7 +410,6 @@ class ClientHandler extends Thread
                     catch (Exception e){
                         instance = null;
                         roleClient = "-1";
-                        System.out.println("Lỗi parse data từ client" + e);
                     }
 
                     switch (roleClient){
@@ -434,7 +433,7 @@ class ClientHandler extends Thread
 
                                     // Invoking the start() method
                                      n.start();
-                                    msgToClient = ConfigMessage.helloName + instance.name + "\n 1. Subscribe. 2. Unsubscribe. 3. Show data subscribe last time";
+                                    msgToClient = ConfigMessage.helloName + instance.name + "\n " + ConfigCommon.option;
 
                                    Util.WriteSubscriberJsonFile(data);
                                 }
@@ -468,10 +467,10 @@ class ClientHandler extends Thread
         }
     }
 
-    
+
 
     public String showSubscribingToData(String msgToClient){
-        return "230 Subscribe sdssdsd";
+        return ConfigMessage.successSubscriber;
     }
 
 

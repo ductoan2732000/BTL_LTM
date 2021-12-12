@@ -18,5 +18,7 @@ public class ConfigMessage {
     public static final String msgCacheClient1 = "FROM SERVER: ";
     public static final String msgCacheClient2 = "TO SERVER: ";
 
+    public static final  String successSubscriber = ConfigCommon.successTopicData + " Subscriber";
+
 
 }

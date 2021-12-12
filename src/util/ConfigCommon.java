@@ -26,4 +26,7 @@ public class ConfigCommon {
 
     // reset
     public  static  final String resetConnection = "Connection reset";
+
+    // default
+    public static  final  String option = "1. Subscribe. 2. Unsubscribe. 3. Show data subscribe last time";
 }
