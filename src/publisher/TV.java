@@ -129,8 +129,8 @@ public class TV
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("Data", (int) (Math.random() * (max - min + 1) + min));
-        jsonObject.put("Time", formatter.format(date));
+        jsonObject.put("data", (int) (Math.random() * (max - min + 1) + min));
+        jsonObject.put("time", formatter.format(date));
         jsonObject.put("id", id);
         jsonObject.put("topicName", topic);
         jsonObject.put("name", name);
