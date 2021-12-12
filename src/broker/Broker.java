@@ -167,23 +167,7 @@ class ClientHandler extends Thread
         return true;
     }
 
-    public  boolean AuthenSubscriber(String data, Instance instance) throws ParseException {
-        // kiểm tra dữ liệu từ file
-        // xác thực
-        if(instance.id.equals("1001")){
-            return true;
-        }
-        return false;
-    }
 
-    public  boolean AuthenPublisher(String data, Instance instance) throws ParseException {
-        // kiểm tra dữ liệu từ file
-        // xác thực
-        if(instance.id.equals("0002")){
-            return true;
-        }
-        return false;
-    }
 
     public String getProperty(String data, String id, String name) throws ParseException {
         try {
