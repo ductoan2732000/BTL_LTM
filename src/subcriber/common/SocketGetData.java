@@ -2,6 +2,7 @@ package subcriber.common;
 
 import com.sun.net.httpserver.Authenticator;
 import subcriber.Subcriber;
+import subcriber.cache.CacheClient;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -16,11 +17,13 @@ public class SocketGetData extends Thread {
     Socket clientSocketData;
     DataOutputStream outputData;
     DataInputStream inData;
+    String Id;
 
-    public SocketGetData(Socket clientSocketData, DataOutputStream outputData, DataInputStream inData) {
+    public SocketGetData(Socket clientSocketData, DataOutputStream outputData, DataInputStream inData, String id) {
         this.clientSocketData = clientSocketData;
         this.outputData = outputData;
         this.inData = inData;
+        this.Id = id;
     }
 
     @Override
@@ -28,7 +31,7 @@ public class SocketGetData extends Thread {
         while (true){
             try {
                 String data = inData.readUTF();
-                if(Subcriber.isShow){
+                if(true){
                     System.out.println((data));
                 }
             } catch (IOException e) {

@@ -3,6 +3,7 @@
  * file subcriber
  */
 package subcriber;
+import subcriber.cache.CacheClient;
 import subcriber.common.SocketGetData;
 import subcriber.model.SubcriberUnique;
 import util.ConfigCommon;
@@ -12,7 +13,6 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 public class Subcriber {
-    public static Boolean isShow = false;
     public static void main(String argv[])
     {
         Boolean helo = false;
@@ -27,22 +27,17 @@ public class Subcriber {
 
             DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
             DataInputStream in = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
-            // todo
             Thread.sleep(4000);
 
-//            SocketChannel clientNon = SocketChannel.open(new InetSocketAddress("localhost", 8089));
-//            try {
-//                new Thread(new ThreadNonBlocking(clientNon)).start();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
+
+            Integer id = 1001;
+            String name = "tranductoan";
 
             if(helo == false){
                 // kết nối xong thì chào hỏi ngay
                 // Chỗ id để là string
-                SubcriberUnique idenSub = new SubcriberUnique(1001, "tranductoan", "temperature");
-                Integer id = idenSub.getId();
-                String name = idenSub.getName();
+                SubcriberUnique idenSub = new SubcriberUnique(id, name, "temperature");
+
 
                 // 1 helo
                 string_to_server = ConfigMessage.helloServer;
@@ -79,7 +74,7 @@ public class Subcriber {
                     DataOutputStream outputData = new DataOutputStream(clientSocketData.getOutputStream());
                     DataInputStream inData = new DataInputStream(new BufferedInputStream(clientSocketData.getInputStream()));
 
-                    new Thread(new SocketGetData(clientSocketData, outputData, inData)).start();
+                    new Thread(new SocketGetData(clientSocketData, outputData, inData, id.toString())).start();
 
 
 
@@ -107,7 +102,7 @@ public class Subcriber {
             while (helo == true){
                 // neeus có nhập input
                 if(ip.hasNext()){
-                    isShow = false;
+                    CacheClient.isShow.put(id.toString(), false);
                     System.out.print(ConfigMessage.msgCacheClient2);
                     string_to_server = ip.nextLine();
 
@@ -126,16 +121,7 @@ public class Subcriber {
                         if(string_from_server.contains(ConfigCommon.successTopicData.toString())){
                             // nếu chưa có socket nonblocking thì tạo mới và nghe data
 
-//                            if(!hasNonblockingSocet){
-//                                Thread.sleep(5000);
-//                                try {
-//                                    new Thread(new ThreadNonBlocking()).start();
-//                                } catch (Exception e) {
-//                                    e.printStackTrace();
-//                                }
-//                                hasNonblockingSocet = true;
-//                            }
-                            isShow = true;
+                            CacheClient.isShow.put(id.toString(), true);
                         }
 
                     }
