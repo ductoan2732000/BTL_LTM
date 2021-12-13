@@ -423,6 +423,13 @@ class ClientHandler extends Thread
                                     isPublisher = false;
                                     isSubscriber = true;
                                     isSubscriberOption = true;
+                                    //
+                                    if (!CacheServer.cacheArray.containsKey(instance.id)){
+                                        CacheServer.cacheArray.put(instance.id, new ArrayList<String>());
+                                    }
+
+
+
                                     // Hiện tại đang chỉ vào đây 1 lần chào hỏi duy nhất. Có thể bỏ số 3 đi
                                     socketData = serverSocketData.accept();
                                     DataInputStream dataInputStreamData = new DataInputStream(socketData.getInputStream());
