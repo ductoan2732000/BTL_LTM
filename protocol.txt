@@ -8,7 +8,8 @@ Broker : 210 Hello laptopName.
 
 Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time // Option để chọn
 Client : 2 // Khi chưa có dữ liệu
-Broker : 420 There are no registered topics yet (!: Mode Option)
+Broker : 420 There are no registered topics yet
+         (!: Mode Option)
 
 // client nhập sai thì phải nhập ! để quay lại Mode
 Client : !
@@ -24,14 +25,15 @@ Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
 Client : 1
 Broker : 2.Temperature 1.humidity 3.Hardware (!: Mode Option)
 Client : 1,2 // cả 3 id đều có trong id => đăng ký thành công
-Broker : 230 Subscribe to the topics successfully. (!: Mode Option)
+Broker : 230 Show followed topics.
 Broker : {"data":"26 độ c","name":"sensor2","topicName":"Humidity","Time" : "10:10:60 18/01/2021"}
-Broker : {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
+         {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
+         (!: Mode Option)
 
 Client : !
 Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
 Client : 3 //Bấm 3 để hiển thị những data đã sub
-Broker : 250 Show data subscribe to the topics successfully.
+Broker : 230 Show followed topics.
 Broker : {"data":"26 độ c","name":"sensor2","topicName":"Humidity","Time" : "10:10:60 18/01/2021"}
          {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
          (!: Mode Option)
@@ -41,7 +43,7 @@ Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
 Client : 1
 Broker : 3.Hardware (!: Mode Option) // Chỉ hiển thị những topic chưa đăng ký
 Client : 3
-Broker : 230 Subscribe to the topics successfully. (!: Mode Option)
+Broker : 230 Show followed topics.
 Broker : {"data":"26 độ c","name":"sensor2","topicName":"Humidity","Time" : "10:10:60 18/01/2021"}
          {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
          {"data":"26 độ c","name":"sensor2","topicName":"Hardware","Time" : "10:10:60 18/01/2021"}
@@ -58,7 +60,7 @@ Broker : 410 Topic not available. (!: Mode Option)
 Client : !
 Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
 Client : 2
-Broker : 240 Unsubscribe to the topics successfully. (!: Mode Option)
+Broker : 230 Show followed topics.
 Broker : {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
          {"data":"26 độ c","name":"sensor2","topicName":"Hardware","Time" : "10:10:60 18/01/2021"}
          (!: Mode Option)

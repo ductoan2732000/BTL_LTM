@@ -199,11 +199,11 @@ class ClientHandler extends Thread
                     switch (msgFromClient){
                         case ConfigCommon.subTopic:
                             if (isSubscribed){
-                                for(int index = 0; index < CacheTopic.arrayTopic.size(); index ++ ){
+                                for (int index = 0; index < CacheTopic.arrayTopic.size(); index++) {
                                     String key = CacheTopic.arrayTopic.keySet().toArray()[index].toString();
                                     String value = CacheTopic.arrayTopic.get(key);
-                                    if(!CacheServer.cacheArray.get(instance.id).contains(key)){
-                                        msgToClient += key + ". " + getProperty(value,key, "topicName") + " ";
+                                    if (!CacheServer.cacheArray.get(instance.id).contains(key)) {
+                                        msgToClient += key + ". " + getProperty(value, key, "topicName") + " ";
                                     }
                                 }
                             } else {
@@ -211,9 +211,13 @@ class ClientHandler extends Thread
                                     String key = CacheTopic.arrayTopic.keySet().toArray()[index].toString();
                                     String value = CacheTopic.arrayTopic.get(key);
                                     msgToClient += key + ". " + getProperty(value,key, "topicName") + " ";
-
                                 }
                             }
+
+                            if(msgToClient.equals("")){
+                                msgToClient += ConfigMessage.msgTopicNotRegistered;
+                            }
+
                             msgToClient += ConfigCommon.backOption;
                             isSub = true;
                             isUnsub = false;
@@ -241,7 +245,7 @@ class ClientHandler extends Thread
                             isUnsub = false;
                             isSub = false;
                             checkShowData(instance.id, true);
-                            msgToClient = showSubscribingToData(msgToClient);
+                            msgToClient = showSubscribingToData(instance.id);
                             break;
                         default :
                             isUnsub = false;
@@ -284,7 +288,7 @@ class ClientHandler extends Thread
                     if(!isErrorNumber) {
                         checkShowData(instance.id, true);
                         isSubscribed = true;
-                        msgToClient = showSubscribingToData(msgToClient);
+                        msgToClient = showSubscribingToData(instance.id);
                     }
 
                     isSub = false;
@@ -318,7 +322,7 @@ class ClientHandler extends Thread
                         }
                     }
                     if(!isErrorNumber) {
-                        msgToClient = showSubscribingToData(msgToClient);
+                        msgToClient = showSubscribingToData(instance.id);
                     }
 
                     int countNull = 0;
@@ -392,8 +396,6 @@ class ClientHandler extends Thread
                                     // Invoking the start() method
                                      n.start();
                                     msgToClient = ConfigMessage.helloName + instance.name + "\n " + ConfigCommon.option;
-
-                                   Util.WriteSubscriberJsonFile(data);
                                 }
                             break;
                         default:
@@ -418,16 +420,24 @@ class ClientHandler extends Thread
             this.socket.close();
             this.dataInputStream.close();
             this.dataOutputStream.close();
-
         }catch(IOException e){
             e.printStackTrace();
         }
     }
 
 
-    public String showSubscribingToData(String msgToClient) {
-        return ConfigMessage.successSubscriber;
+    public String showSubscribingToData(String id) {
+        int countNotNull = 0;
+        for (int i = 0; i < CacheServer.cacheArray.get(id).size(); i++){
+            if( CacheServer.cacheArray.get(id).get(i) != null ) {
+                countNotNull++;
+            }
+        }
+
+        if(countNotNull > 0){
+            return ConfigMessage.successSubscriber;
+        }
+
+        return ConfigMessage.msgTopicNotRegistered + ConfigCommon.backOption;
     }
-
-
 }
