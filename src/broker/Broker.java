@@ -17,33 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/*
-* Phân biệt các role của client
-* */
-enum  Identified {
-    Subscriber(ConfigCommon.roleSub),
-    Publisher(ConfigCommon.rolePub);
-    private final String value;
-    private Identified(String value) {
-        this.value = value;
-    }
-    public String getValue() {
-        return value;
-    }
-    public String toString(){
-        switch(this){
-            case Subscriber:
-                return ConfigCommon.roleSub;
-            case Publisher :
-                return ConfigCommon.rolePub;
-        }
-        return null;
-    }
-}
-
-/*
-* Hứng dữ liêu ở publisher
-* */
 class Instance{
     public String id = null;
     public String topic = null;
@@ -57,9 +30,6 @@ class Instance{
         instance.name = json.get("name").toString();
         return  instance;
     }
-    public String GetInfoInstance(Instance instance){
-        return  "ID : " + instance.id + ",Topic : " + instance.topic + ",name : " + instance.name;
-    }
 }
 
 
@@ -71,13 +41,13 @@ public class Broker
     private DataOutputStream dataOutputStream = null;
     private Socket socket = null;
     private static Socket socketData = null;
+
     public Broker(int port) {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
-            ServerSocket serverSocketData = new ServerSocket(8089);
+            ServerSocket serverSocketData = new ServerSocket(ConfigCommon.portNonblocking);
             System.out.println("Server start");
             System.out.println("Waiting a connection ...");
-
 
             while(true) {
                 socket = serverSocket.accept();
@@ -93,7 +63,6 @@ public class Broker
 
                 // Invoking the start() method
                 t.start();
-
             }
         }
         catch (IOException  ioe)
@@ -104,7 +73,6 @@ public class Broker
 
     public static void main(String[] args) throws IOException
     {
-        // server is listening on port 5056
         Broker server = new Broker(ConfigCommon.port);
     }
 }
@@ -112,10 +80,6 @@ public class Broker
 // ClientHandler classSocket
 class ClientHandler extends Thread
 {
-    private boolean x = true;
-    public Boolean isCreateNonBlocking = false;
-    DateFormat fordate        = new SimpleDateFormat("yyyy/MM/dd");
-    DateFormat fortime        = new SimpleDateFormat("hh:mm:ss");
     final DataInputStream dataInputStream;
     final DataOutputStream dataOutputStream;
     final Socket socket;
@@ -137,7 +101,6 @@ class ClientHandler extends Thread
             case ConfigMessage.helloServer:
                 msgToClient = ConfigMessage.helloClient;
                 break;
-
             case ConfigMessage.quit:
                 msgToClient = ConfigMessage.bye;
                 break;
@@ -152,14 +115,13 @@ class ClientHandler extends Thread
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(data);
         try {
-
             String id = json.get("id").toString();
             if(id == null || id.trim().equals("")){
                 return false;
             }
         }
         catch (Exception ex){
-            System.out.println("Dữ liệu publisher gửi sang lỗi");
+            //Dữ liệu publisher gửi sang lỗi
             return false;
         }
         // xác thực
@@ -180,6 +142,10 @@ class ClientHandler extends Thread
         return "";
     }
 
+    public void checkShowData(String idSub, boolean isShowData){
+        CacheServer.cacheIsShowData.replace(idSub, isShowData);
+    }
+
     @Override
     public void run()
     {
@@ -198,9 +164,7 @@ class ClientHandler extends Thread
 
         while (!msgFromClient.equals(ConfigMessage.quit))
         {
-            x = true;
             try {
-
                 msgFromClient = "";
                 try {
                     msgFromClient = dataInputStream.readUTF();
@@ -222,21 +186,20 @@ class ClientHandler extends Thread
                         msgToClient = ConfigMessage.msgInvalidDataPub;
                     }
                     dataOutputStream.writeUTF(msgToClient);
-
                 }
                 else if(isSubscriber && msgFromClient.equals(ConfigCommon.rollbackSubscriberOption)){
                     isPublisher = false;
                     isSubscriberOption = true;
-                    msgToClient = "1. Subscribe. 2. Unsubscribe. 3. Show data subscribe last time";
+                    checkShowData(instance.id, false);
+                    msgToClient = ConfigCommon.option;
                     dataOutputStream.writeUTF(msgToClient);
                     msgToClient = "";
                 }
-                else if(isSubscriber && isSubscriberOption){ // Khi bam vao cac option
+                else if(isSubscriber && isSubscriberOption){
                     switch (msgFromClient){
                         case ConfigCommon.subTopic:
                             if (isSubscribed){
                                 for(int index = 0; index < CacheTopic.arrayTopic.size(); index ++ ){
-                                    // lấy
                                     String key = CacheTopic.arrayTopic.keySet().toArray()[index].toString();
                                     String value = CacheTopic.arrayTopic.get(key);
                                     if(!CacheServer.cacheArray.get(instance.id).contains(key)){
@@ -245,15 +208,13 @@ class ClientHandler extends Thread
                                 }
                             } else {
                                 for(int index = 0; index < CacheTopic.arrayTopic.size(); index ++ ){
-                                    // lấy
                                     String key = CacheTopic.arrayTopic.keySet().toArray()[index].toString();
                                     String value = CacheTopic.arrayTopic.get(key);
-                                    // lấy danh sách đăng ký => hiển thị nhữn tg tk không nằm trong đó
                                     msgToClient += key + ". " + getProperty(value,key, "topicName") + " ";
 
                                 }
                             }
-                            msgToClient += "\n(!: Mode Option)";
+                            msgToClient += ConfigCommon.backOption;
                             isSub = true;
                             isUnsub = false;
                             isSubscriberOption = false;
@@ -261,20 +222,17 @@ class ClientHandler extends Thread
                         case ConfigCommon.unsubTopic:
                             if (isSubscribed){
                                 for(int index = 0; index < CacheTopic.arrayTopic.size(); index ++ ){
-                                    // lấy
                                     String key = CacheTopic.arrayTopic.keySet().toArray()[index].toString();
                                     String value = CacheTopic.arrayTopic.get(key);
-                                    // lấy danh sách đăng ký => hiển thị nhữn tg tk không nằm trong đó
-                                    // [1, 2]
                                     if(CacheServer.cacheArray.get(instance.id).contains(key)){
                                         msgToClient += key + ". " + getProperty(value,key, "topicName") + " ";
                                     }
                                 }
                                 isUnsub = true;
                             } else {
-                                msgToClient += "420 There are no registered topics yet";
+                                msgToClient += ConfigMessage.msgTopicNotRegistered;
                             }
-                            msgToClient += "\n(!: Mode Option)";
+                            msgToClient += ConfigCommon.backOption;
                             isSub = false;
                             isSubscriberOption = false;
                             break;
@@ -282,19 +240,20 @@ class ClientHandler extends Thread
                             isSubscriberOption = false;
                             isUnsub = false;
                             isSub = false;
+                            checkShowData(instance.id, true);
                             msgToClient = showSubscribingToData(msgToClient);
                             break;
                         default :
                             isUnsub = false;
                             isSub = false;
                             isSubscriberOption = false;
-                            msgToClient = "400 Invalid data.\n(!: Mode Option)"; // để tạm, tính sau
+                            msgToClient = ConfigMessage.msgInvalidDataPub + ConfigCommon.backOption ;
                             break;
                     }
                     dataOutputStream.writeUTF(msgToClient);
                     msgToClient = "";
                 }
-                else if(isSubscriber && isSub) { // Khi bam vao option va la sub
+                else if(isSubscriber && isSub) {
                     List<String> temp = Arrays.asList(Util.convertStringToArray(msgFromClient));
                     if (CacheServer.cacheArray.containsKey(instance.id)){
                         List<String> data = new ArrayList<>(CacheServer.cacheArray.get(instance.id)) ;
@@ -310,14 +269,12 @@ class ClientHandler extends Thread
                         temp = data;
                     }
                     CacheServer.cacheArray.put(instance.id, temp);
+
                     boolean isErrorNumber = false;
-                    // Xử lý việc sub
                     for (int i = 0; i < CacheServer.cacheArray.get(instance.id).size(); i++){
                         String idTopic = CacheServer.cacheArray.get(instance.id).get(i);
-                        // chứa 1 tk không nằm trong danh sách topic thì đẩy lỗi
                         if(!CacheTopic.arrayTopic.containsKey(idTopic)) {
-                            // Xử lý việc nếu nhập không trong giới hạn của topic
-                            msgToClient = "410 Topic not available. Please enter an existing topic!\n(!: Mode Option)";
+                            msgToClient = ConfigMessage.msgTopicNotAvailable + ConfigCommon.backOption ;
                             isSubscriberOption = false;
                             isErrorNumber = true;
                             break;
@@ -325,18 +282,16 @@ class ClientHandler extends Thread
                     }
 
                     if(!isErrorNumber) {
-                        // nếu đăng ký thành công thì gán biến boolen để bên dưới ko phải writeUTF nữa
-                        msgToClient = showSubscribingToData(msgToClient);
+                        checkShowData(instance.id, true);
                         isSubscribed = true;
+                        msgToClient = showSubscribingToData(msgToClient);
                     }
 
                     isSub = false;
                     dataOutputStream.writeUTF(msgToClient);
                     msgToClient = "";
-
                 }
-                else if(isSubscriber && isUnsub) { // Khi bam vao option va la unsub
-
+                else if(isSubscriber && isUnsub) {
                     List<String> temp = Arrays.asList( Util.convertStringToArray(msgFromClient));
                     if (CacheServer.cacheArray.containsKey(instance.id)){
                         List<String> data = new ArrayList<>(CacheServer.cacheArray.get(instance.id)) ;
@@ -355,10 +310,8 @@ class ClientHandler extends Thread
 
                     for (int i = 0; i < CacheServer.cacheArray.get(instance.id).size(); i++){
                         String idTopic = CacheServer.cacheArray.get(instance.id).get(i);
-                        // chứa 1 tk không nằm trong danh sách topic thì đẩy lỗi
                         if(!CacheTopic.arrayTopic.containsKey(idTopic)) {
-                            // Xử lý việc nếu nhập không trong giới hạn của topic
-                            msgToClient = "410 Topic not available. Please enter an existing topic!\n(!: Mode Option)";
+                            msgToClient = ConfigMessage.msgTopicNotAvailable + ConfigCommon.backOption;
                             isSubscriberOption = false;
                             isErrorNumber = true;
                             break;
@@ -368,8 +321,6 @@ class ClientHandler extends Thread
                         msgToClient = showSubscribingToData(msgToClient);
                     }
 
-                    // Nếu mảng mà là null hết thì isSubscribed = false
-                    // Nếu mảng mà có 1 phần tử k null hết thì isSubscribed = true
                     int countNull = 0;
                     int countNotNull = 0;
                     for (int i = 0; i < CacheServer.cacheArray.get(instance.id).size(); i++){
@@ -385,6 +336,7 @@ class ClientHandler extends Thread
                     }
 
                     if(countNotNull > 0) {
+                        checkShowData(instance.id, true);
                         isSubscribed = true;
                     }
 
@@ -393,7 +345,7 @@ class ClientHandler extends Thread
                     msgToClient = "";
                 }
                 else if(isSubscriber && isRole) {
-                    dataOutputStream.writeUTF(ConfigMessage.msgInvalidDataPub + " (!: Mode Option)");
+                    dataOutputStream.writeUTF(ConfigMessage.msgInvalidDataPub + ConfigCommon.backOption);
                 }
                 else {
                     String roleClient = null;
@@ -423,14 +375,13 @@ class ClientHandler extends Thread
                                     isPublisher = false;
                                     isSubscriber = true;
                                     isSubscriberOption = true;
+                                    CacheServer.cacheIsShowData.put(instance.id, false);
                                     //
                                     if (!CacheServer.cacheArray.containsKey(instance.id)){
                                         CacheServer.cacheArray.put(instance.id, new ArrayList<String>());
                                     }
 
 
-
-                                    // Hiện tại đang chỉ vào đây 1 lần chào hỏi duy nhất. Có thể bỏ số 3 đi
                                     socketData = serverSocketData.accept();
                                     DataInputStream dataInputStreamData = new DataInputStream(socketData.getInputStream());
                                     DataOutputStream dataOutputStreamData = new DataOutputStream(socketData.getOutputStream());
@@ -460,7 +411,6 @@ class ClientHandler extends Thread
 
         try
         {
-            // closing resources
             System.out.println("Client " + this.socket + " sends exit...");
             System.out.println("Closing this connection.");
             System.out.println("Connection closed");
@@ -475,8 +425,7 @@ class ClientHandler extends Thread
     }
 
 
-
-    public String showSubscribingToData(String msgToClient){
+    public String showSubscribingToData(String msgToClient) {
         return ConfigMessage.successSubscriber;
     }
 

@@ -3,6 +3,7 @@ package util;
 public class ConfigCommon {
     public static final String host = "127.0.0.1";
     public static final Integer port = 5056;
+    public static final Integer portNonblocking = 8089;
 
     // Message Code
     public static final Integer requestSucceeded = 200;
@@ -11,6 +12,7 @@ public class ConfigCommon {
     public static final Integer successTopicData = 230;
     public static final Integer invalidData = 400;
     public static final Integer topicNotAvailable = 410;
+    public static final Integer topicNotRegistered = 420;
     public static final Integer bye = 500;
     public static final Integer requestTimeout = 504;
 
@@ -29,4 +31,5 @@ public class ConfigCommon {
 
     // default
     public static  final  String option = "1. Subscribe. 2. Unsubscribe. 3. Show data subscribe last time";
+    public static  final  String backOption = "\n(!: Mode Option)";
 }

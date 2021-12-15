@@ -8,15 +8,14 @@ public class ConfigMessage {
     public static final String quit = "Quit";
     public static final String bye = ConfigCommon.bye + " Bye";
 
-    public static final String msgTopicNotAvailableSub = ConfigCommon.topicNotAvailable +" Topic not available. Please enter an existing topic!";
-    public static final String msgTopicNotDataSub = ConfigCommon.successTopicData +" Subscribe to the topic successfully. No new data yet";
-
-    public static final String msgDataSucceededPub = ConfigCommon.dataPublisherSucceeded +"  Success. Data save in location.";
+    public static final String msgDataSucceededPub = ConfigCommon.dataPublisherSucceeded +"  Success.";
     public static final String msgInvalidDataPub = ConfigCommon.invalidData +" Invalid data.";
+    public static final String msgTopicNotRegistered = ConfigCommon.topicNotRegistered +" There are no registered topics yet";
+    public static final String msgTopicNotAvailable = ConfigCommon.topicNotAvailable +" Topic not available";
 
 
-    public static final String msgCacheClient1 = "FROM SERVER: ";
-    public static final String msgCacheClient2 = "TO SERVER: ";
+    public static final String msgCacheClient1 = "Broker: ";
+    public static final String msgCacheClient2 = "Client: ";
 
     public static final  String successSubscriber = ConfigCommon.successTopicData + " Subscriber";
 

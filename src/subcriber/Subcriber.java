@@ -106,6 +106,7 @@ public class Subcriber {
                     System.out.print(ConfigMessage.msgCacheClient2);
                     string_to_server = ip.nextLine();
 
+
                     if(string_to_server.equals(ConfigMessage.quit) ){
                         output.writeUTF(string_to_server );
                         string_from_server = in.readUTF();

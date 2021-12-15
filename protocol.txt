@@ -1,83 +1,74 @@
-1.	Publisher
--	Ban đầu sẽ kết nối broker và truyền cho bên server tên topic mà người dung ko cần nhập, topic sẽ được fix sẵn ở trong code hoặc enum ở ngoài do mỗi client chỉ có 1 topic
-
-2.	Subcriber
-Client: Hello Server
-Server: 200 Hello Client
-Client: 1 { “id”: “0001”, “name”: “laptopName” } // 2 là publisher, 1 là subcriber, id là client
-// Bắt đầu màn hình xuất hiện từ dưới dòng này
-
-Server: 200 Hello laptopName, enter the topic you want to subscribe to? (0 to do not subcribe)/No new data yet.
-Topic  1. Temperature 2. humidity 3. hardware
-Client: 10
-Server: 410 Topic not available. Please enter an existing topic!
-Client: 1
-Server: 230 Subscribe to the topic successfully. No new data yet
-Client: QUIT
-Server: 500 bye
-
-3. Broker
------------------------- Subscriber ----------------------
+------------------------ Subscriber - Broker ----------------------
 Client : Hello Server
 Broker : 200 Hello Client
 Client : Hello Server
-Broker : 504 Request Timeout
-Client : 1 { “id”: “0001”, “name”: “laptopName” } // Không gửi topic
+Broker : 504 Request Timeout // Có lên xử lý không
+Client : 1 { “id”: “0001”, “name”: “laptopName” } // Chào hỏi và xác thực
 Broker : 210 Hello laptopName.
 
-// todo : Vũ nhớ chỗ này - cứ gõ ! thì quay lại bước chọn đăng ký (dòng 29)
-// todo : case check lần đầu tiên vào chương trình
-Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time // first time
-Client : 2 hoặc nhập 3 thì cũng sẽ trả về lỗi 420 như vậy
+Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time // Option để chọn
+Client : 2 // Khi chưa có dữ liệu
 Broker : 420 There are no registered topics yet (!: Mode Option)
 
 // client nhập sai thì phải nhập ! để quay lại Mode
 Client : !
 Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
 Client : 1
-Broker : 1.Temperature 2.Humidity 3.Hardware (!: Mode Option) 
-Client : 10,1,2
-Broker : 410 Topic not available. Please enter an existing topic! (!: Mode Option)  // nếu 1 id lỗi thì coi như cả mảng id là lỗi=> không đăng ký thành công\
+Broker : 2.Temperature 1.Humidity 3.Hardware (!: Mode Option)
+Client : 10,1,2 // Người dùng nhâp id của topic không nằm trong topic
+Broker : 410 Topic not available. (!: Mode Option)
 
-// Client nhập sai topic thì phải quay lại từ đầu
+// Client nhập sai thì phải nhập ! để quay lại Mode
 Client : !
-Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time // first time
+Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
 Client : 1
-Broker : 1.Temperature 2.humidity 3.Hardware (!: Mode Option)
+Broker : 2.Temperature 1.humidity 3.Hardware (!: Mode Option)
 Client : 1,2 // cả 3 id đều có trong id => đăng ký thành công
 Broker : 230 Subscribe to the topics successfully. (!: Mode Option)
-
+Broker : {"data":"26 độ c","name":"sensor2","topicName":"Humidity","Time" : "10:10:60 18/01/2021"}
+Broker : {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
 
 Client : !
 Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
-Client : 3
-Broker : 250 Continue get Data (!: Mode Option)
+Client : 3 //Bấm 3 để hiển thị những data đã sub
+Broker : 250 Show data subscribe to the topics successfully.
 Broker : {"data":"26 độ c","name":"sensor2","topicName":"Humidity","Time" : "10:10:60 18/01/2021"}
-Broker : {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
+         {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
+         (!: Mode Option)
 
 Client : !
 Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
 Client : 1
-// bên server phải check trong mảng đã đăng ký của client này [1,2]
-Broker : 3.Hardware (!: Mode Option)
+Broker : 3.Hardware (!: Mode Option) // Chỉ hiển thị những topic chưa đăng ký
 Client : 3
 Broker : 230 Subscribe to the topics successfully. (!: Mode Option)
-
 Broker : {"data":"26 độ c","name":"sensor2","topicName":"Humidity","Time" : "10:10:60 18/01/2021"}
-Broker : {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
+         {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
+         {"data":"26 độ c","name":"sensor2","topicName":"Hardware","Time" : "10:10:60 18/01/2021"}
+         (!: Mode Option)
 
+// Case huỷ đăng ký
 Client : !
 Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
 Client : 2
 Broker : 1.Temperature 2.humidity 3.Hardware (!: Mode Option)
-Client : 10
-Broker : 410 Topic not available. Please enter an existing topic!
-Client : 1
-Broker : 240 Unsubscribe to the topics successfully. (!: Mode Option)
-Client : QUIT
-Broker : 500 bye
+Client : 10 // Không nằm trong id topic
+Broker : 410 Topic not available. (!: Mode Option)
 
------------------------ publisher ---------------------
+Client : !
+Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
+Client : 2
+Broker : 240 Unsubscribe to the topics successfully. (!: Mode Option)
+Broker : {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" : "10:10:60 18/01/2021"} //20s 1 lần
+         {"data":"26 độ c","name":"sensor2","topicName":"Hardware","Time" : "10:10:60 18/01/2021"}
+         (!: Mode Option)
+
+Client : Quit
+Broker : 500 Bye
+
+----------------------- Publisher - Broker ---------------------
+// Ban đầu sẽ kết nối broker và truyền cho bên server tên topic mà người dung ko cần nhập,
+// topic sẽ được fix sẵn ở trong code hoặc enum ở ngoài do mỗi client chỉ có 1 topic
 
 Client : Hello Server
 Broker : 200 Hello Client
@@ -89,19 +80,20 @@ Client : { “id”: “0002”, “topicName”: “Temperature” , name : "se
 Broker : 220 Success
 Client : {  “abc”: “18 độ C”}
 Broker : 400 Invalid data.
-Client : QUIT
-Broker : 500 bye
-
+Client : Quit // Cần hỏi xem có còn làm vậy không
+Broker : 500 Bye
 
 200: Request Succeeded
 210: Hello Name
 220: Data Publisher Succeeded
 230: Not Topic Data
 240: Unsubscribe to the topics successfully
+250: Show data
 400: Invalid data
 410: Topic not available
+420: Topic not registered
 500: Bye
+504: Request Timeout
 
-// todo
-1. mảng subscribe có 1 id lỗi thì ko cho đăng ký
-2. hủy đăng ký, đăng ký mới (protocl ở trên)
+// Case
+- Bấm vào sub nhưng không có sub nào 405

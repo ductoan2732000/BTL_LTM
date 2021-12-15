@@ -5,6 +5,7 @@ import broker.cache.CacheTopic;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
+import util.ConfigCommon;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -54,8 +55,10 @@ public class CreateServerNonBlocking extends Thread{
                         msgToClient += "\n" + CacheTopic.arrayTopic.get(topic.get(i));
                     }
                 }
-                if(msgToClient != null )
-                    this.dataOutputStreamData.writeUTF(msgToClient);
+
+                if(msgToClient.trim() != "" && CacheServer.cacheIsShowData.get(this.id))
+                    this.dataOutputStreamData.writeUTF(msgToClient + ConfigCommon.backOption);
+
                 msgToClient = "";
             }
         }
