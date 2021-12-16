@@ -142,6 +142,6 @@ public class TV
 
     public static void main(String args[])
     {
-        Lamp client = new Lamp(ConfigCommon.host, ConfigCommon.port);
+        TV client = new TV(ConfigCommon.host, ConfigCommon.port);
     }
 }
