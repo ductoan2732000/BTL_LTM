@@ -17,7 +17,8 @@ Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
 Client : 1
 Broker : 2.Temperature 1.Humidity 3.Hardware (!: Mode Option)
 Client : 10,1,2 // Người dùng nhâp id của topic không nằm trong topic
-Broker : 410 Topic not available. (!: Mode Option)
+Broker : 410 Topic not available.
+         (!: Mode Option)
 
 // Client nhập sai thì phải nhập ! để quay lại Mode
 Client : !
@@ -89,8 +90,6 @@ Broker : 500 Bye
 210: Hello Name
 220: Data Publisher Succeeded
 230: Not Topic Data
-240: Unsubscribe to the topics successfully
-250: Show data
 400: Invalid data
 410: Topic not available
 420: Topic not registered
