@@ -17,7 +17,7 @@ public class ConfigMessage {
     public static final String msgCacheClient1 = "Broker: ";
     public static final String msgCacheClient2 = "Client: ";
 
-    public static final  String successSubscriber = ConfigCommon.successTopicData + " Subscriber";
+    public static final  String successSubscriber = ConfigCommon.successTopicData + " Show followed topics.";
 
 
 }

@@ -3,7 +3,6 @@
  * file subcriber
  */
 package subcriber;
-import subcriber.cache.CacheClient;
 import subcriber.common.SocketGetData;
 import subcriber.model.SubcriberUnique;
 import util.ConfigCommon;
@@ -19,24 +18,20 @@ public class Subcriber1 {
         Boolean hasNonblockingSocet = false;
         String string_to_server;
         String string_from_server;
-
-
         try{
             // khởi tạo socket đến server
             Socket clientSocket = new Socket(ConfigCommon.host, ConfigCommon.port);
-
             DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
             DataInputStream in = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
             Thread.sleep(4000);
 
-
             Integer id = 1002;
-            String name = "tranduc";
+            String name = "tranduchung";
 
             if(helo == false){
                 // kết nối xong thì chào hỏi ngay
                 // Chỗ id để là string
-                SubcriberUnique idenSub = new SubcriberUnique(id, name, "temperature");
+                SubcriberUnique idenSub = new SubcriberUnique(id, name);
 
 
                 // 1 helo
@@ -58,18 +53,8 @@ public class Subcriber1 {
                     System.out.println(ConfigMessage.msgCacheClient2 + string_to_server);
 
 
-
-
-
-
-
-
-
-
-
-
                     Thread.sleep(3000);
-                    Socket clientSocketData = new Socket(ConfigCommon.host, 8089);
+                    Socket clientSocketData = new Socket(ConfigCommon.host, ConfigCommon.portData);
 
                     DataOutputStream outputData = new DataOutputStream(clientSocketData.getOutputStream());
                     DataInputStream inData = new DataInputStream(new BufferedInputStream(clientSocketData.getInputStream()));
@@ -77,15 +62,8 @@ public class Subcriber1 {
                     new Thread(new SocketGetData(clientSocketData, outputData, inData, id.toString())).start();
 
 
-
-
-
-
-
-
-
                     string_from_server = in.readUTF();
-                    if(!string_from_server.contains(ConfigCommon.helloName.toString()) ){ // Đoạn này có vấn đề
+                    if(!string_from_server.contains(ConfigCommon.helloName.toString()) ){
                         System.out.println(ConfigMessage.requestTimeout);
                         System.exit(-1);
                     }
@@ -102,9 +80,8 @@ public class Subcriber1 {
             while (helo == true){
                 // neeus có nhập input
                 if(ip.hasNext()){
-                    CacheClient.isShow.put(id.toString(), false);
-                    System.out.print(ConfigMessage.msgCacheClient2);
                     string_to_server = ip.nextLine();
+
 
                     if(string_to_server.equals(ConfigMessage.quit) ){
                         output.writeUTF(string_to_server );
@@ -121,8 +98,6 @@ public class Subcriber1 {
                         if(string_from_server.contains(ConfigCommon.successTopicData.toString())){
                             // nếu chưa có socket nonblocking thì tạo mới và nghe data
 
-//
-                            CacheClient.isShow.put(id.toString(), true);
                         }
 
                     }

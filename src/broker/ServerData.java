@@ -14,7 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 
-public class CreateServerNonBlocking extends Thread{
+public class ServerData extends Thread{
 
 
     private Socket socketData;
@@ -23,7 +23,7 @@ public class CreateServerNonBlocking extends Thread{
     private DataOutputStream dataOutputStreamData;
     private String id;
 
-    public CreateServerNonBlocking(Socket socketData, ServerSocket serverSocketData, DataInputStream dataInputStreamData, DataOutputStream dataOutputStreamData,String  id) {
+    public ServerData(Socket socketData, ServerSocket serverSocketData, DataInputStream dataInputStreamData, DataOutputStream dataOutputStreamData, String  id) {
         this.socketData = socketData;
         this.serverSocketData = serverSocketData;
         this.dataInputStreamData = dataInputStreamData;

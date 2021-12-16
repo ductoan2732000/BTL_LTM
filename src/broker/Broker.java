@@ -2,7 +2,6 @@ package broker;
 
 import broker.cache.CacheServer;
 import broker.cache.CacheTopic;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -11,7 +10,6 @@ import util.ConfigMessage;
 
 import java.io.*;
 import java.nio.channels.Selector;
-import java.text.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +43,7 @@ public class Broker
     public Broker(int port) {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
-            ServerSocket serverSocketData = new ServerSocket(ConfigCommon.portNonblocking);
+            ServerSocket serverSocketData = new ServerSocket(ConfigCommon.portData);
             System.out.println("Server start");
             System.out.println("Waiting a connection ...");
 
@@ -391,7 +389,7 @@ class ClientHandler extends Thread
                                     DataOutputStream dataOutputStreamData = new DataOutputStream(socketData.getOutputStream());
 
                                     // create a new thread object
-                                    Thread n = new CreateServerNonBlocking(socketData, serverSocketData, dataInputStreamData, dataOutputStreamData, instance.id);
+                                    Thread n = new ServerData(socketData, serverSocketData, dataInputStreamData, dataOutputStreamData, instance.id);
 
                                     // Invoking the start() method
                                      n.start();

@@ -10,22 +10,18 @@ import java.util.Random;
 public class SubcriberUnique {
     protected Integer id;
     protected String name;
-    protected String topic;
     public static Integer lastId;
-    public SubcriberUnique(Integer id, String name, String topic){
+    public SubcriberUnique(Integer id, String name){
         this.id = id;
         this.name = name;
-        this.topic = topic;
     }
     public SubcriberUnique(String topic){
         this.id = this.lastId + 1;
         this.name = this.RandomString();
-        this.topic = topic;
     }
-    public SubcriberUnique(Integer id, String topic){
+    public SubcriberUnique(Integer id){
         this.id = id;
         this.name = this.RandomString();
-        this.topic = topic;
     }
     public Integer getId(){
         return this.id;
@@ -67,7 +63,6 @@ public class SubcriberUnique {
             JSONObject data = new JSONObject();
             data.put("id", this.id.toString());
             data.put("name", this.name);
-            data.put("topic", this.topic);
             string_to_server = "1 " + data.toJSONString();
         }
         catch (Exception e){

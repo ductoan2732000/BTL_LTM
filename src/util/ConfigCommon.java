@@ -3,7 +3,7 @@ package util;
 public class ConfigCommon {
     public static final String host = "127.0.0.1";
     public static final Integer port = 5056;
-    public static final Integer portNonblocking = 8089;
+    public static final Integer portData = 8089;
 
     // Message Code
     public static final Integer requestSucceeded = 200;
