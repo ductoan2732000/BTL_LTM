@@ -15,7 +15,6 @@ public class Subcriber1 {
     public static void main(String argv[])
     {
         Boolean helo = false;
-        Boolean hasNonblockingSocet = false;
         String string_to_server;
         String string_from_server;
         try{
