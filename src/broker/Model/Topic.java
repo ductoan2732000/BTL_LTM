@@ -11,4 +11,10 @@ public class Topic {
         this.topicName = topicName;
         this.data = data;
     }
+
+    public Topic(String topicName, String data, ArrayList<Topic> subTopics){
+        this.topicName = topicName;
+        this.data = data;
+        this.subTopics = subTopics;
+    }
 }

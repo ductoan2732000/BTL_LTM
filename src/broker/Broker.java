@@ -31,6 +31,8 @@ class Instance{
 }
 
 
+
+
 public class Broker
 {
     private static Selector selector = null;
@@ -54,12 +56,7 @@ public class Broker
 
                 dataInputStream = new DataInputStream(socket.getInputStream());
                 dataOutputStream = new DataOutputStream(socket.getOutputStream());
-
-
-                // create a new thread object
                 Thread t = new ClientHandler(socket,socketData, serverSocketData, dataInputStream, dataOutputStream);
-
-                // Invoking the start() method
                 t.start();
             }
         }
@@ -124,6 +121,21 @@ class ClientHandler extends Thread
         }
         // xác thực
         CacheTopic.arrayTopic.put(instance.id, data);
+
+        Util.upgradeArrayTopic("a/b/c","Hello World", CacheTopic.arrTopic );
+        Util.upgradeArrayTopic("a/b","Phạm Ngọc Thuận", CacheTopic.arrTopic );
+        Util.upgradeArrayTopic("d/e","Phạm Ngọc Thuận123", CacheTopic.arrTopic );
+        Util.upgradeArrayTopic("a/b/thuan","Phạm Ngọc Thuận123", CacheTopic.arrTopic );
+
+        String a = Util.getDataCacheTopic("a", CacheTopic.arrTopic);
+        String c = Util.getDataCacheTopic("a/b", CacheTopic.arrTopic);
+        String c1 = Util.getDataCacheTopic("a/b/c", CacheTopic.arrTopic);
+        String c2 = Util.getDataCacheTopic("a/b/thuan", CacheTopic.arrTopic);
+        String b = Util.getDataCacheTopic("c/d", CacheTopic.arrTopic);
+
+
+        Util.removeDataCacheTopic("d", CacheTopic.arrTopic);
+
         return true;
     }
 
