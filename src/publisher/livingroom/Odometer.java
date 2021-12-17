@@ -1,4 +1,4 @@
-package publisher;
+package publisher.livingroom;
 
 import org.json.simple.JSONObject;
 import util.ConfigCommon;
@@ -10,23 +10,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
-public class Lamp
+public class Odometer extends LivingRoom
 {
-    private static final int enable = 1;
-    private static final int disable = 0;
     // initialize socket and input output streams
     private Socket socket            = null;
     private static DataInputStream  input   = null;
     private static DataOutputStream out     = null;
     boolean isHello = false, isSendId = false;
-    private static final int role = Integer.parseInt(ConfigCommon.rolePub), minTemp = disable, maxTemp = enable; //0: publisher, 1: subcriber
-    private static final  String id = "2"; // id
-    private static final  String name = "Lamp"; // id
-    private static final String topic = "Lamp";
-    private static String line = "";
-    private static String recvBuf = "";
+    private static final int role = Integer.parseInt(ConfigCommon.rolePub), maxTemp = 50, minTemp = 20; //0: publisher, 1: subcriber
+    private static final  String id = "3"; // id
+    private static final  String name = "Odometer"; // id
+    private final String topic = super.topic  + "/Odometer";
+    private String line = "";
+    private String recvBuf = "";
     // constructor to put ip address and port
-    public Lamp(String address, int port)
+    public Odometer(String address, int port)
     {
         // establish a connection
         try
@@ -125,7 +123,7 @@ public class Lamp
      * @return du lieu duoc sinh ra
      * @author: PVTRONG (27/11/2021)
      */
-    private static String getData() throws IOException {
+    private String getData() {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         JSONObject jsonObject = new JSONObject();
@@ -135,13 +133,12 @@ public class Lamp
         jsonObject.put("topicName", topic);
         jsonObject.put("name", name);
         System.out.println( jsonObject.toString());
-
         return jsonObject.toString();
     }
 
 
     public static void main(String args[])
     {
-        Lamp client = new Lamp(ConfigCommon.host, ConfigCommon.port);
+        Odometer client = new Odometer(ConfigCommon.host, ConfigCommon.port);
     }
 }

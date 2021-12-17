@@ -1,16 +1,20 @@
-package publisher;
+package publisher.kitchen;
 
 import org.json.simple.JSONObject;
 import util.ConfigCommon;
 import util.ConfigMessage;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
-public class TV
+public class TV extends Kitchen
 {
     private static final int enable = 1;
     private static final int disable = 0;
@@ -22,9 +26,9 @@ public class TV
     private static final int role = Integer.parseInt(ConfigCommon.rolePub), min= disable, max = enable; //0: publisher, 1: subcriber
     private static final  String id = "4"; // id
     private static final  String name = "TV"; // id
-    private static final String topic = "TV";
-    private static String line = "";
-    private static String recvBuf = "";
+    private final String topic = super.topic  + "/TV";
+    private String line = "";
+    private String recvBuf = "";
     // constructor to put ip address and port
     public TV(String address, int port)
     {
@@ -125,7 +129,7 @@ public class TV
      * @return du lieu duoc sinh ra
      * @author: PVTRONG (27/11/2021)
      */
-    private static String getData() throws IOException {
+    private String getData() throws IOException {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         JSONObject jsonObject = new JSONObject();
