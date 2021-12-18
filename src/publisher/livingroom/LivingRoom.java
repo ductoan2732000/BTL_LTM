@@ -1,5 +1,5 @@
 package publisher.livingroom;
 
 public class LivingRoom {
-    String topic = "LivingRoom";
+    String topic = "/LivingRoom";
 }

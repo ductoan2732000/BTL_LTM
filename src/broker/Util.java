@@ -182,4 +182,20 @@ public class Util {
         }
         return ;
     }
+
+    public static String getAllTopic(ArrayList<Topic> topics, String path){
+        if(topics.size() == 0) return path;
+        String res = "";
+        String a = "";
+        for(int i = 0;i< topics.size() ;i ++){
+            if(topics.get(i).subTopics.size() > 0){
+                a += getAllTopic(topics.get(i).subTopics, path + "/" +topics.get(i).topicName);
+                continue;
+            }
+            res += getAllTopic(topics.get(i).subTopics, path + "/" +topics.get(i).topicName) + "\n";
+        }
+        if(res.equals("")) return a;
+        return res;
+    }
+
 }

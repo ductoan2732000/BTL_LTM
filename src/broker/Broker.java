@@ -20,6 +20,7 @@ class Instance{
     public String topic = null;
     public String name = null;
 
+
     public  static Instance CreateInstance(String data) throws ParseException {
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(data);
@@ -120,21 +121,22 @@ class ClientHandler extends Thread
             return false;
         }
         // xác thực
-        CacheTopic.arrayTopic.put(instance.id, data);
-
-        Util.upgradeArrayTopic("a/b/c","Hello World", CacheTopic.arrTopic );
-        Util.upgradeArrayTopic("a/b","Phạm Ngọc Thuận", CacheTopic.arrTopic );
-        Util.upgradeArrayTopic("d/e","Phạm Ngọc Thuận123", CacheTopic.arrTopic );
-        Util.upgradeArrayTopic("a/b/thuan","Phạm Ngọc Thuận123", CacheTopic.arrTopic );
-
-        String a = Util.getDataCacheTopic("a", CacheTopic.arrTopic);
-        String c = Util.getDataCacheTopic("a/b", CacheTopic.arrTopic);
-        String c1 = Util.getDataCacheTopic("a/b/c", CacheTopic.arrTopic);
-        String c2 = Util.getDataCacheTopic("a/b/thuan", CacheTopic.arrTopic);
-        String b = Util.getDataCacheTopic("c/d", CacheTopic.arrTopic);
-
-
-        Util.removeDataCacheTopic("d", CacheTopic.arrTopic);
+        CacheTopic.arrayTopic.put(instance.id, json.get("topicName").toString());
+        Util.upgradeArrayTopic(json.get("topicName").toString().substring(1), data, CacheTopic.arrTopic);
+//        Util.upgradeArrayTopic("a/b/c","Hello World", CacheTopic.arrTopic );
+//        Util.upgradeArrayTopic("a/b","Phạm Ngọc Thuận", CacheTopic.arrTopic );
+//        Util.upgradeArrayTopic("d/e","Phạm Ngọc Thuận123", CacheTopic.arrTopic );
+//        Util.upgradeArrayTopic("a/b/thuan","Phạm Ngọc Thuận123", CacheTopic.arrTopic );
+//
+//        String a = Util.getDataCacheTopic("a", CacheTopic.arrTopic);
+//        String c = Util.getDataCacheTopic("a/b", CacheTopic.arrTopic);
+//        String c1 = Util.getDataCacheTopic("a/b/c", CacheTopic.arrTopic);
+//        String c2 = Util.getDataCacheTopic("a/b/thuan", CacheTopic.arrTopic);
+//        String b = Util.getDataCacheTopic("c/d", CacheTopic.arrTopic);
+//
+ //       String res = Util.getAllTopic(CacheTopic.arrTopic, "");
+//
+//        Util.removeDataCacheTopic("d", CacheTopic.arrTopic);
 
         return true;
     }
@@ -187,6 +189,7 @@ class ClientHandler extends Thread
                 if(isPublisher){
                     if(msgFromClient.equals(ConfigMessage.quit)){
                         if(CacheTopic.arrayTopic.containsKey(instance.id)){
+                            Util.removeDataCacheTopic(CacheTopic.arrayTopic.get(instance.id).substring(1), CacheTopic.arrTopic);
                             CacheTopic.arrayTopic.remove(instance.id);
                         }
                     }

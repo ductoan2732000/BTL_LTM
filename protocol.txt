@@ -64,6 +64,22 @@ Broker : {"data":"26 độ c","name":"sensor2","topicName":"Temperature","Time" 
          {"data":"26 độ c","name":"sensor2","topicName":"Hardware","Time" : "10:10:60 18/01/2021"}
          (!: Mode Option)
 
+
+Client : !
+Broker : 1. Subscribe. 2. Unsubscribe 3.Show data subscribe last time
+Client : 1
+Broker :
+          /Livingroom/temperture
+          /Livingroom/room2/pan
+          /Bathroom/room1
+Client : /Livingroom/*, /Livingroom/room1
+Broker : 230 Show followed topics.
+Broker : {"data":"26 độ c","name":"sensor2","topicName":"/Livingroom/temperture","Time" : "10:10:60 18/01/2021"}
+         {"data":"26 độ c","name":"sensor2","topicName":"/Livingroom/room2/pan","Time" : "10:10:60 18/01/2021"}
+         (!: Mode Option)
+
+
+
 Client : Quit
 Broker : 500 Bye
 

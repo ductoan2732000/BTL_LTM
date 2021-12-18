@@ -139,7 +139,6 @@ public class TV extends Kitchen
         jsonObject.put("topicName", topic);
         jsonObject.put("name", name);
         System.out.println( jsonObject.toString());
-
         return jsonObject.toString();
     }
 
