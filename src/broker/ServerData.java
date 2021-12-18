@@ -53,8 +53,10 @@ public class ServerData extends Thread{
                 List <String> arrayTopicName = Util.getArrayTopicName();
                 List<String> topic = CacheServer.cacheArray.get(this.id);
                 for(int i =0;i < topic.size();i ++){
-                    if(arrayTopicName.containsAll(Arrays.asList(topic.get(i)))){
-                        msgToClient += "\n" + Util.getDataCacheTopic(arrayTopicName.get(i).substring(1),CacheTopic.arrTopic);
+                    for(int j = 0;j< arrayTopicName.size(); j ++){
+                        if(arrayTopicName.get(j).equals(topic.get(i))){
+                            msgToClient += "\n" + Util.getDataCacheTopic(arrayTopicName.get(j).substring(1),CacheTopic.arrTopic);
+                        }
                     }
                 }
 

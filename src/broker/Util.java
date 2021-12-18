@@ -190,6 +190,7 @@ public class Util {
         String res = "";
         String a = "";
         for(int i = 0;i< topics.size() ;i ++){
+            if(topics.get(i) == null) continue;
             if(topics.get(i).subTopics.size() > 0){
                 a += getAllTopic(topics.get(i).subTopics, path + "/" +topics.get(i).topicName);
                 continue;
@@ -203,6 +204,7 @@ public class Util {
     public static List<String> getArrayTopicName(){
         List<String> arrayTopicName = new ArrayList<>();
         try{
+            String a = getAllTopic(CacheTopic.arrTopic, "");
             arrayTopicName = Arrays.asList(getAllTopic(CacheTopic.arrTopic, "").split("\n"));
         }catch (Exception e){
 
