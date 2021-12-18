@@ -1,6 +1,7 @@
 package broker.cache;
 
 import broker.Model.Topic;
+import broker.Util;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -11,6 +12,5 @@ public class CacheTopic {
      * @author: pnthuan
      */
     public static Hashtable<String, String> arrayTopic = new Hashtable<String, String>();
-    public  static ArrayList<Topic> arrTopic = new ArrayList<Topic>();
-
+    public static ArrayList<Topic> arrTopic = new ArrayList<Topic>();
 }

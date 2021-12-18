@@ -134,7 +134,6 @@ class ClientHandler extends Thread
 //        String c2 = Util.getDataCacheTopic("a/b/thuan", CacheTopic.arrTopic);
 //        String b = Util.getDataCacheTopic("c/d", CacheTopic.arrTopic);
 //
- //       String res = Util.getAllTopic(CacheTopic.arrTopic, "");
 //
 //        Util.removeDataCacheTopic("d", CacheTopic.arrTopic);
 
@@ -209,21 +208,18 @@ class ClientHandler extends Thread
                     msgToClient = "";
                 }
                 else if(isSubscriber && isSubscriberOption){
+                    List <String> arrayTopicName = Util.getArrayTopicName();
                     switch (msgFromClient){
                         case ConfigCommon.subTopic:
                             if (isSubscribed){
-                                for (int index = 0; index < CacheTopic.arrayTopic.size(); index++) {
-                                    String key = CacheTopic.arrayTopic.keySet().toArray()[index].toString();
-                                    String value = CacheTopic.arrayTopic.get(key);
-                                    if (!CacheServer.cacheArray.get(instance.id).contains(key)) {
-                                        msgToClient += key + ". " + getProperty(value, key, "topicName") + " ";
+                                for (int index = 0; index < arrayTopicName.size(); index++) {
+                                    if (!CacheServer.cacheArray.get(instance.id).contains(arrayTopicName.get(index))) {
+                                        msgToClient += arrayTopicName.get(index) + "\n";
                                     }
                                 }
                             } else {
-                                for(int index = 0; index < CacheTopic.arrayTopic.size(); index ++ ){
-                                    String key = CacheTopic.arrayTopic.keySet().toArray()[index].toString();
-                                    String value = CacheTopic.arrayTopic.get(key);
-                                    msgToClient += key + ". " + getProperty(value,key, "topicName") + " ";
+                                for(int index = 0; index < arrayTopicName.size(); index ++ ){
+                                    msgToClient += arrayTopicName.get(index) + "\n";
                                 }
                             }
 
@@ -238,11 +234,9 @@ class ClientHandler extends Thread
                             break;
                         case ConfigCommon.unsubTopic:
                             if (isSubscribed){
-                                for(int index = 0; index < CacheTopic.arrayTopic.size(); index ++ ){
-                                    String key = CacheTopic.arrayTopic.keySet().toArray()[index].toString();
-                                    String value = CacheTopic.arrayTopic.get(key);
-                                    if(CacheServer.cacheArray.get(instance.id).contains(key)){
-                                        msgToClient += key + ". " + getProperty(value,key, "topicName") + " ";
+                                for(int index = 0; index < arrayTopicName.size(); index ++ ){
+                                    if(CacheServer.cacheArray.get(instance.id).contains(arrayTopicName.get(index))){
+                                        msgToClient += arrayTopicName.get(index) + "\n";
                                     }
                                 }
                                 isUnsub = true;
@@ -271,7 +265,9 @@ class ClientHandler extends Thread
                     msgToClient = "";
                 }
                 else if(isSubscriber && isSub) {
+                    List <String> arrayTopicName = Util.getArrayTopicName();
                     List<String> temp = Arrays.asList(Util.convertStringToArray(msgFromClient));
+
                     if (CacheServer.cacheArray.containsKey(instance.id)){
                         List<String> data = new ArrayList<>(CacheServer.cacheArray.get(instance.id)) ;
                         if(data.size() == 0 ) data = temp;
@@ -285,15 +281,17 @@ class ClientHandler extends Thread
                         }
                         temp = data;
                     }
-                    CacheServer.cacheArray.put(instance.id, temp);
-
+                    String id = instance.id;
                     boolean isErrorNumber = false;
-                    for (int i = 0; i < CacheServer.cacheArray.get(instance.id).size(); i++){
-                        String idTopic = CacheServer.cacheArray.get(instance.id).get(i);
-                        if(!CacheTopic.arrayTopic.containsKey(idTopic)) {
+                    CacheServer.cacheArray.put(id, temp);
+
+                    for (int idx = 0; idx < CacheServer.cacheArray.get(id).size(); idx++){
+                        String topicName = CacheServer.cacheArray.get(id).get(idx);
+                        if(!arrayTopicName.containsAll(Arrays.asList(topicName))) {
                             msgToClient = ConfigMessage.msgTopicNotAvailable + ConfigCommon.backOption ;
                             isSubscriberOption = false;
                             isErrorNumber = true;
+                            // ở đây cần reset về rỗng
                             break;
                         }
                     }
@@ -309,7 +307,9 @@ class ClientHandler extends Thread
                     msgToClient = "";
                 }
                 else if(isSubscriber && isUnsub) {
+                    List <String> arrayTopicName = Util.getArrayTopicName();
                     List<String> temp = Arrays.asList( Util.convertStringToArray(msgFromClient));
+
                     if (CacheServer.cacheArray.containsKey(instance.id)){
                         List<String> data = new ArrayList<>(CacheServer.cacheArray.get(instance.id)) ;
                         if(data.size() == 0 ) data = null;
@@ -326,11 +326,12 @@ class ClientHandler extends Thread
                     boolean isErrorNumber = false;
 
                     for (int i = 0; i < CacheServer.cacheArray.get(instance.id).size(); i++){
-                        String idTopic = CacheServer.cacheArray.get(instance.id).get(i);
-                        if(!CacheTopic.arrayTopic.containsKey(idTopic)) {
+                        String topicName = CacheServer.cacheArray.get(instance.id).get(i);
+                        if(!arrayTopicName.containsAll(Arrays.asList(topicName))) {
                             msgToClient = ConfigMessage.msgTopicNotAvailable + ConfigCommon.backOption;
                             isSubscriberOption = false;
                             isErrorNumber = true;
+                            // ở đây cần reset về rỗng
                             break;
                         }
                     }

@@ -12,6 +12,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.List;
 
 public class ServerData extends Thread{
@@ -43,16 +44,17 @@ public class ServerData extends Thread{
         }
     }
 
-
     private void handleWrite() throws IOException, InterruptedException, ParseException {
         String msgToClient = "";
         while (CacheTopic.arrayTopic.size() > 0){
             Thread.sleep(3000);
             if(CacheServer.cacheArray.containsKey(this.id)){
+
+                List <String> arrayTopicName = Util.getArrayTopicName();
                 List<String> topic = CacheServer.cacheArray.get(this.id);
                 for(int i =0;i < topic.size();i ++){
-                    if(CacheTopic.arrayTopic.containsKey(topic.get(i))){
-                        msgToClient += "\n" + CacheTopic.arrayTopic.get(topic.get(i));
+                    if(arrayTopicName.containsAll(Arrays.asList(topic.get(i)))){
+                        msgToClient += "\n" + Util.getDataCacheTopic(arrayTopicName.get(i).substring(1),CacheTopic.arrTopic);
                     }
                 }
 

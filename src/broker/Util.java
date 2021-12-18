@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Util {
     private static String[] topics = new String[]{"Temperature", "Humidity", "Hardware", "Sensor"};
@@ -196,6 +198,16 @@ public class Util {
         }
         if(res.equals("")) return a;
         return res;
+    }
+
+    public static List<String> getArrayTopicName(){
+        List<String> arrayTopicName = new ArrayList<>();
+        try{
+            arrayTopicName = Arrays.asList(getAllTopic(CacheTopic.arrTopic, "").split("\n"));
+        }catch (Exception e){
+
+        }
+        return arrayTopicName;
     }
 
 }
