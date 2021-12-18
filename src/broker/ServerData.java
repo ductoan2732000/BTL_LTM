@@ -47,7 +47,7 @@ public class ServerData extends Thread{
     private void handleWrite() throws IOException, InterruptedException, ParseException {
         String msgToClient = "";
         while (CacheTopic.arrayTopic.size() > 0){
-            Thread.sleep(3000);
+            Thread.sleep(5000);
             if(CacheServer.cacheArray.containsKey(this.id)){
 
                 List <String> arrayTopicName = Util.getArrayTopicName();

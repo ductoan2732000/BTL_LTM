@@ -82,7 +82,7 @@ public class TV extends Kitchen
                 // Neu da gui chi tiet client thi gui data
                 else if(isSendId){
                     while (true){
-                        Thread.sleep(2000);
+                        Thread.sleep(5000);
                         line = getData();
                         out.writeUTF(line);
                         recvBuf = input.readUTF();

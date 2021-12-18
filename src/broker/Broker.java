@@ -180,9 +180,15 @@ class ClientHandler extends Thread
                 try {
                     msgFromClient = dataInputStream.readUTF();
                 }catch (Exception ex){
-                    if(ex.getMessage().equals(ConfigCommon.resetConnection)){
-                        msgFromClient = ConfigMessage.quit;
-                    }
+                    Util.removeDataCacheTopic(CacheTopic.arrayTopic.get(instance.id).substring(1), CacheTopic.arrTopic);
+                    CacheTopic.arrayTopic.remove(instance.id);
+                    break;
+                }
+
+                if(msgFromClient.equals(ConfigMessage.quit)){
+                    msgToClient = ConfigMessage.bye;
+                    dataOutputStream.writeUTF(msgToClient);
+                    break;
                 }
 
                 if(isPublisher){
@@ -428,9 +434,6 @@ class ClientHandler extends Thread
         try
         {
             System.out.println("Client " + this.socket + " sends exit...");
-            System.out.println("Closing this connection.");
-            System.out.println("Connection closed");
-            System.out.println("Waiting a connection ...");
             this.socket.close();
             this.dataInputStream.close();
             this.dataOutputStream.close();
