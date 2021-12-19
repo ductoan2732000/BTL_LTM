@@ -121,7 +121,7 @@ class ClientHandler extends Thread
             return false;
         }
         // xác thực
-        CacheTopic.arrayTopic.put(instance.id, json.get("topicName").toString());
+        CacheTopic.arrayTopic.put(instance.id, json.get("topicName").toString().split("/")[1]); // 001 : LivingRoom , 002 : Kitchen , 003 : Kitchen
         Util.upgradeArrayTopic(json.get("topicName").toString().substring(1), data, CacheTopic.arrTopic);
 //        Util.upgradeArrayTopic("a/b/c","Hello World", CacheTopic.arrTopic );
 //        Util.upgradeArrayTopic("a/b","Phạm Ngọc Thuận", CacheTopic.arrTopic );
@@ -240,9 +240,16 @@ class ClientHandler extends Thread
                             break;
                         case ConfigCommon.unsubTopic:
                             if (isSubscribed){
-                                for(int index = 0; index < arrayTopicName.size(); index ++ ){
-                                    if(CacheServer.cacheArray.get(instance.id).contains(arrayTopicName.get(index))){
-                                        msgToClient += arrayTopicName.get(index) + "\n";
+                                for(int index = 0 ;index <CacheServer.cacheArray.get(instance.id).size() ;index ++){
+                                    String topicUser = CacheServer.cacheArray.get(instance.id).get(index);
+                                    if(arrayTopicName.contains(topicUser)){
+                                        msgToClient += topicUser + "\n";
+                                        continue;
+                                    }
+                                    String res = Util.getDataCacheTopic(topicUser.substring(1), CacheTopic.arrTopic);
+                                    if(res != null && !res.equals("")){
+                                        msgToClient += topicUser + "\n";
+                                        continue;
                                     }
                                 }
                                 isUnsub = true;
@@ -293,7 +300,16 @@ class ClientHandler extends Thread
 
                     for (int idx = 0; idx < CacheServer.cacheArray.get(id).size(); idx++){
                         String topicName = CacheServer.cacheArray.get(id).get(idx);
-                        if(!arrayTopicName.containsAll(Arrays.asList(topicName))) {
+                        List<String> lstTopic = Arrays.asList(topicName);// dữ liệu người dung nhập
+                        boolean check = false;
+                        for(int j = 0; j< lstTopic.size();j ++){
+                            String res = Util.getDataCacheTopic(lstTopic.get(j).substring(1),CacheTopic.arrTopic);
+                            if(res != null && !res.equals("")){
+                                check = true;
+                                break;
+                            }
+                        }
+                        if(!arrayTopicName.containsAll(Arrays.asList(topicName)) && !check && idx == CacheServer.cacheArray.get(id).size() - 1) {
                             msgToClient = ConfigMessage.msgTopicNotAvailable + ConfigCommon.backOption ;
                             isSubscriberOption = false;
                             isErrorNumber = true;
@@ -313,27 +329,51 @@ class ClientHandler extends Thread
                     msgToClient = "";
                 }
                 else if(isSubscriber && isUnsub) {
-                    List <String> arrayTopicName = Util.getArrayTopicName();
-                    List<String> temp = Arrays.asList( Util.convertStringToArray(msgFromClient));
+                    List <String> arrayTopicName = Util.getArrayTopicName();// dữ liệu server
+                    List<String> temp = Arrays.asList( Util.convertStringToArray(msgFromClient));// topic người dùng nhập để hủy
 
                     if (CacheServer.cacheArray.containsKey(instance.id)){
-                        List<String> data = new ArrayList<>(CacheServer.cacheArray.get(instance.id)) ;
+                        List<String> data = new ArrayList<>(CacheServer.cacheArray.get(instance.id)) ;// dữ liệu người dùng hiện tại đã đăng ký
                         if(data.size() == 0 ) data = null;
                         else {
                             for(int i = 0;i< temp.size() ; i ++){
                                 if(data.contains(temp.get(i))){
                                     data.remove(temp.get(i));
+                                }else
+                                {
+                                    String res = Util.getDataCacheTopic(temp.get(i).substring(1), CacheTopic.arrTopic);
+                                    if(res != null && !res.equals("")){
+                                        int len = temp.get(i).length();
+                                        for(int j = 0 ; j< data.size(); j++){
+                                            try {
+                                                if(data.get(j).substring(0, len - 1).equals(temp.get(i))){
+                                                    data.remove(data.get(j));
+                                                }
+                                            }
+                                            catch (Exception ex){
+                                                continue;
+                                            }
+
+                                        }
+                                    }
                                 }
+
                             }
                         }
                         temp = data;
                     }
                     CacheServer.cacheArray.put(instance.id, temp);
                     boolean isErrorNumber = false;
-
+                    boolean check = false;
                     for (int i = 0; i < CacheServer.cacheArray.get(instance.id).size(); i++){
                         String topicName = CacheServer.cacheArray.get(instance.id).get(i);
-                        if(!arrayTopicName.containsAll(Arrays.asList(topicName))) {
+                        String res = Util.getDataCacheTopic(topicName.substring(1), CacheTopic.arrTopic);
+
+                        if(res != null && !res.equals("")){
+                            check = true;
+                            continue;
+                        }
+                        if(!arrayTopicName.containsAll(Arrays.asList(topicName)) && !check && i == CacheServer.cacheArray.get(instance.id).size() - 1) {
                             msgToClient = ConfigMessage.msgTopicNotAvailable + ConfigCommon.backOption;
                             isSubscriberOption = false;
                             isErrorNumber = true;

@@ -72,7 +72,7 @@ Broker :
           /Livingroom/temperture
           /Livingroom/room2/pan
           /Bathroom/room1
-Client : /Livingroom/*, /Livingroom/room1
+Client : /Livingroom, /Livingroom/room1
 Broker : 230 Show followed topics.
 Broker : {"data":"26 độ c","name":"sensor2","topicName":"/Livingroom/temperture","Time" : "10:10:60 18/01/2021"}
          {"data":"26 độ c","name":"sensor2","topicName":"/Livingroom/room2/pan","Time" : "10:10:60 18/01/2021"}

@@ -50,13 +50,12 @@ public class ServerData extends Thread{
             Thread.sleep(5000);
             if(CacheServer.cacheArray.containsKey(this.id)){
 
-                List <String> arrayTopicName = Util.getArrayTopicName();
-                List<String> topic = CacheServer.cacheArray.get(this.id);
+                List <String> arrayTopicName = Util.getArrayTopicName();//dữ liệu publisher
+                List<String> topic = CacheServer.cacheArray.get(this.id);// dữ liệu ng dùng nhập
                 for(int i =0;i < topic.size();i ++){
-                    for(int j = 0;j< arrayTopicName.size(); j ++){
-                        if(arrayTopicName.get(j).equals(topic.get(i))){
-                            msgToClient += "\n" + Util.getDataCacheTopic(arrayTopicName.get(j).substring(1),CacheTopic.arrTopic);
-                        }
+                    String res = Util.getDataCacheTopic(topic.get(i).substring(1),CacheTopic.arrTopic);
+                    if(res != null && !res.equals("")){
+                        msgToClient += "\n" + Util.getDataCacheTopic(topic.get(i).substring(1),CacheTopic.arrTopic);
                     }
                 }
 
